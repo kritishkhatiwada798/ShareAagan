@@ -12,15 +12,38 @@
 
 <body>
 
-    <h1>Welcome to FileShare</h1>
+    <header>
+        <h1>ShareAagan</h1>
+        <p>Share files with your university community</p>
+    </header>
 
-    <p>
-        Share files with your university students easily.
-    </p>
+    <main>
 
-    <input type="file" id="fileInput">
+        <section class="upload-box">
 
-    <p id="fileName"></p>
+            <h2>Upload a File</h2>
+
+            <p>Select a file from your computer.</p>
+
+            <input type="file" id="fileInput">
+
+            <p id="fileName"></p>
+
+            <button id="uploadButton">Upload File</button>
+
+        </section>
+
+        <section class="file-list">
+        
+            <h2>Uploaded Files</h2>
+        
+            <ul id="fileList">
+                <li>Loading files...</li>
+            </ul>
+        
+        </section>
+
+    </main>
 
     <script src="script.js"></script>
 
