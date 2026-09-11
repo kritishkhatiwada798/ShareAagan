@@ -1,24 +1,12 @@
-import { Database } from "@db/sqlite";
+// import { getUsers } from "./database/db.js";
 
-const db = new Database("shareaagan.db");
+// const users = getUsers();
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL,
-    email TEXT NOT NULL
-  )
-`);
+// console.log(users);
 
-db.prepare(`
-  INSERT INTO users (username, email)
-  VALUES (?, ?)
-`).run("Kritish", "kritish@example.com");
 
-const users = db.prepare("SELECT * FROM users").all();
+import { getFiles } from "./database/db.js";
 
-console.log(users);
+const files = getFiles();
 
-// console.log("User added successfully!");
-
-db.close();
+console.log(files);

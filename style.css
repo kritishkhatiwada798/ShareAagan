@@ -73,3 +73,51 @@ main {
     padding: 10px;
     border-bottom: 1px solid #ddd;
 }
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-item a {
+    color: #333;
+    text-decoration: none;
+}
+
+.file-item a:hover {
+    text-decoration: underline;
+}
+
+.file-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.download-btn,
+.delete-btn {
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.download-btn:hover,
+.delete-btn:hover {
+    background-color: #555;
+    text-decoration: none;
+}
+
+.delete-btn {
+    background-color: #b22222;
+}
+
+.delete-btn:hover {
+    background-color: #8b1e1e;
+}
