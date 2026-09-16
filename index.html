@@ -5,51 +5,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ShareAagan</title>
+    <title>ShareAagan - Home</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
+    <!-- Header -->
     <header>
-        <h1>ShareAagan</h1>
-        <p>Share files with your university community</p>
+        <nav class="navbar">
+            <a href="/" class="logo">ShareAagan</a>
+
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/upload.html">Upload</a>
+                <a href="/files.html">Files</a>
+                <a href="/login.html">Login</a>
+            </div>
+        </nav>
     </header>
 
+    <!-- Homepage content -->
     <main>
+        <section class="hero">
+            <h1>Share Files with Ease</h1>
 
-        <section class="upload-box">
+            <p>
+                Welcome to ShareAagan, a simple platform
+                to upload, store, and share your files.
+            </p>
 
-            <h2>Upload a File</h2>
+            <a href="/upload.html" class="btn">
+                Upload Files
+            </a>
 
-            <p>Select a file from your computer.</p>
-
-            <input type="file" id="fileInput">
-
-            <p id="fileName"></p>
-
-            <button id="uploadButton">Upload File</button>
-
+            <a href="/files.html" class="btn btn-secondary">
+                View Files
+            </a>
         </section>
-
-        <!-- <section class="file-list">
-        
-            <h2>Uploaded Files</h2>
-        
-            <ul id="fileList">
-                <li>Loading files...</li>
-            </ul>
-        
-        </section> -->
-
-        <a href="uploadedFiles.html">
-            <button>View Uploaded Files</button>
-        </a>
-
     </main>
 
-    <script src="script.js"></script>
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ShareAagan. All rights reserved.</p>
+    </footer>
 
 </body>
 

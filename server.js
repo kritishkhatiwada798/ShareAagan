@@ -1,10 +1,53 @@
-import { getUsers } from "./database/db.js";
-
-import { addFile, getFiles, deleteFile } from "./database/db.js";
+import {
+    getUsers,
+    addUser,
+    getUserByEmail,
+    addFile,
+    getFiles,
+    deleteFile
+} from "./database/db.js";
 
 
 Deno.serve(async (request) => {
     const url = new URL(request.url);
+
+
+    // Register a new user
+    if (url.pathname === "/register" && request.method === "POST") {
+        const data = await request.json();
+
+        const username = data.username;
+        const email = data.email;
+        const password = data.password;
+
+        if (!username || !email || !password) {
+            return new Response("All fields are required.", {
+                status: 400
+            });
+        }
+
+        if (getUserByEmail(email)) {
+            return new Response("Email already registered.", {
+                status: 409
+            });
+        }
+
+        const passwordHash = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(password)
+        );
+
+        const hashArray = Array.from(new Uint8Array(passwordHash));
+        const hashedPassword = hashArray
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+
+        addUser(username, email, hashedPassword);
+
+        return new Response("Registration successful!", {
+            status: 201
+        });
+    }
 
     // Handle file upload
     if (url.pathname === "/upload" && request.method === "POST") {

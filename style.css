@@ -1,123 +1,166 @@
+/* General page design */
+* {
+    box-sizing: border-box;
+}
+
 body {
+    margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    text-align: center;
+    background-color: #f4f7fb;
+    color: #1e293b;
 }
 
+/* Header */
 header {
-    background-color: #333;
+    background-color: #172d4d;
     color: white;
-    padding: 30px;
+    padding: 18px 8%;
 }
 
-header h1 {
-    margin: 0;
-    font-size: 40px;
-}
-
-header p {
-    margin-top: 10px;
-    font-size: 18px;
-}
-
-main {
-    padding: 60px 20px;
-}
-
-.upload-box {
-    background-color: white;
-    max-width: 500px;
-    margin: auto;
-    padding: 40px;
-    border-radius: 10px;
-}
-
-.upload-box h2 {
-    margin-top: 0;
-}
-
-#fileInput {
-    margin: 20px 0;
-}
-
-#fileName {
-    font-weight: bold;
-}
-
-#uploadButton {
-    padding: 12px 25px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.file-list {
-    background-color: white;
-    max-width: 500px;
-    margin: 30px auto;
-    padding: 30px;
-    border-radius: 10px;
-    text-align: left;
-}
-
-.file-list h2 {
-    text-align: center;
-}
-
-#fileList {
-    padding: 0;
-}
-
-#fileList li {
-    list-style: none;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.file-item {
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-.file-item a {
-    color: #333;
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
     text-decoration: none;
 }
 
-.file-item a:hover {
-    text-decoration: underline;
-}
-
-.file-actions {
+.nav-links {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-.download-btn,
-.delete-btn {
-    background-color: #333;
+.nav-links a {
     color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.nav-links a:hover {
+    color: #93c5fd;
+}
+
+/* Main content */
+main {
+    width: 84%;
+    max-width: 1100px;
+    margin: 40px auto;
+    min-height: 60vh;
+}
+
+.hero {
+    text-align: center;
+    padding: 70px 20px;
+    background-color: white;
+    border-radius: 12px;
+}
+
+.hero h1 {
+    font-size: 38px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    color: #64748b;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 12px 22px;
+    background-color: #2563eb;
+    color: white;
     text-decoration: none;
     border: none;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 15px;
 }
 
-.download-btn:hover,
-.delete-btn:hover {
-    background-color: #555;
-    text-decoration: none;
+.btn:hover {
+    background-color: #1d4ed8;
 }
 
-.delete-btn {
-    background-color: #b22222;
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: #1e293b;
 }
 
-.delete-btn:hover {
-    background-color: #8b1e1e;
+/* Forms and cards */
+.card {
+    max-width: 450px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px #0000000d;
+}
+
+.card h1 {
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.form-group input:focus {
+    outline: 2px solid #93c5fd;
+    border-color: #2563eb;
+}
+
+.card .btn {
+    width: 100%;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 22px;
+    background-color: #172d4d;
+    color: white;
+    margin-top: 40px;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+    header {
+        padding: 18px 5%;
+    }
+
+    .navbar {
+        flex-direction: column;
+    }
+
+    main {
+        width: 90%;
+        margin: 25px auto;
+    }
+
+    .hero h1 {
+        font-size: 29px;
+    }
 }
