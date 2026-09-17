@@ -21,13 +21,13 @@
                 <a href="/">Home</a>
                 <a href="/upload.html">Upload</a>
                 <a href="/files.html">Files</a>
-            <div class="profile-container" id="profileContainer">
-            
-                <a href="/login.html" id="authLink">
-                    Login
-                </a>
-            
-            </div>
+                <div class="profile-container" id="profileContainer">
+
+                    <a href="/login.html" id="authLink">
+                        Login
+                    </a>
+
+                </div>
             </div>
         </nav>
     </header>
@@ -218,8 +218,9 @@
                 const message = await response.text();
 
                 if (response.ok) {
-                    alert(message);
+                    window.location.href = "/index.html";
                 } else {
+                    const message = await response.text();
                     alert(message);
                 }
             } catch (error) {
@@ -229,8 +230,8 @@
         });
     </script>
 
-// Add the auth.js script to handle authentication and logout functionality
-<script src="/auth.js"></script>
+    // Add the auth.js script to handle authentication and logout functionality
+    <script src="/auth.js"></script>
 </body>
 
 

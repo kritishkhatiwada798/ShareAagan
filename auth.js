@@ -115,13 +115,37 @@ async function updateAuthButton() {
 
         // User is NOT logged in
         else {
-
             profileContainer.innerHTML = `
-                <a href="/login.html" id="authLink">
-                    Login
-                </a>
-            `;
+        <a href="/login.html" id="authLink">
+            Login
+        </a>
+    `;
 
+            // Show welcome popup when logged out
+            const welcomePopup =
+                document.getElementById("welcomePopup");
+
+            if (welcomePopup) {
+                welcomePopup.classList.add("show");
+            }
+
+            const closePopup =
+                document.getElementById("closePopup");
+
+            if (closePopup) {
+                closePopup.onclick = () => {
+                    welcomePopup.classList.remove("show");
+                };
+            }
+
+            const continueGuest =
+                document.getElementById("continueGuest");
+
+            if (continueGuest) {
+                continueGuest.onclick = () => {
+                    welcomePopup.classList.remove("show");
+                };
+            }
         }
 
     } catch (error) {

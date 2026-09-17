@@ -315,16 +315,15 @@ Deno.serve(async (request) => {
         const cookie = request.headers.get("cookie");
 
         if (cookie) {
-
             const sessionCookie = cookie
                 .split("; ")
-                .find((item) => item.startsWith("session_token="));
+                .find((item) =>
+                    item.startsWith("session_token=")
+                );
 
             if (sessionCookie) {
-
                 const token = sessionCookie.split("=")[1];
 
-                // Delete the session from the database
                 deleteSession(token);
             }
         }

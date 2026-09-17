@@ -19,11 +19,11 @@
             <a href="/upload.html">Upload</a>
             <a href="/files.html">Files</a>
             <div class="profile-container" id="profileContainer">
-            
+
                 <a href="/login.html" id="authLink">
                     Login
                 </a>
-            
+
             </div>
         </nav>
     </header>
@@ -40,9 +40,7 @@
                     <p>View and manage your uploaded files.</p>
                 </div>
 
-                <a href="/upload.html" class="btn upload-btn">
-                    Upload File
-                </a>
+                
             </div>
 
 
@@ -318,31 +316,13 @@
 
         }
 
-        // Logout functionality
-        const logoutLink = document.getElementById("logoutLink");
-
-        logoutLink.addEventListener("click", async (event) => {
-
-            event.preventDefault();
-
-            const response = await fetch("/logout", {
-                method: "POST"
-            });
-
-            if (response.ok) {
-                window.location.href = "/login.html";
-            } else {
-                alert("Could not log out.");
-            }
-        });
-
         // Load files when page opens
         loadFiles();
 
     </script>
 
-// Add the auth.js script to handle authentication and logout functionality
-<script src="/auth.js"></script>
+    // Add the auth.js script to handle authentication and logout functionality
+    <script src="/auth.js"></script>
 
 </body>
 

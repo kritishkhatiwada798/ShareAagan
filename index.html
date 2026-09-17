@@ -22,11 +22,11 @@
                 <a href="/upload.html">Upload</a>
                 <a href="/files.html">Files</a>
                 <div class="profile-container" id="profileContainer">
-                
+
                     <a href="/login.html" id="authLink">
                         Login
                     </a>
-                
+
                 </div>
             </div>
         </nav>
@@ -59,6 +59,41 @@
 
     // Add the auth.js script to handle authentication and logout functionality
     <script src="/auth.js"></script>
+
+    <!-- Welcome Popup -->
+    <div class="welcome-overlay" id="welcomePopup">
+
+        <div class="welcome-popup">
+
+            <button class="popup-close" id="closePopup" aria-label="Close popup">
+                &times;
+            </button>
+
+            <div class="popup-icon">☁</div>
+
+            <h2>Welcome to ShareAagan!</h2>
+
+            <p>
+                Share your files easily and securely.
+                Log in or create an account to get started.
+            </p>
+
+            <a href="/login.html" class="popup-login">
+                Login
+            </a>
+
+            <a href="/login.html" class="popup-register">
+                Create an Account
+            </a>
+
+            <button class="popup-guest" id="continueGuest">
+                Continue as Guest
+            </button>
+
+        </div>
+
+    </div>
+
 </body>
 
 

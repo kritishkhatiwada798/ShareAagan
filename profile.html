@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - ShareAagan</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h2>ShareAagan</h2>
+        </div>
+
+        <nav>
+            <a href="/index.html">Home</a>
+            <a href="/upload.html">Upload</a>
+            <a href="/files.html">My Files</a>
+
+            <div class="profile-container" id="profileContainer">
+                <a href="/login.html" id="authLink">Login</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Profile Page -->
+    <main class="profile-page">
+
+        <div class="profile-card">
+
+            <div class="profile-heading">
+                <h1>My Profile</h1>
+                <p>View your ShareAagan account information.</p>
+            </div>
+
+            <!-- Avatar -->
+            <div class="profile-avatar-section">
+                <div class="profile-avatar profile-avatar-xl" id="profileAvatar">
+                    ?
+                </div>
+
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileEmail"></p>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <!-- Account Details -->
+            <div class="profile-details">
+
+                <div class="profile-detail">
+                    <span>Username</span>
+                    <strong id="detailUsername">Loading...</strong>
+                </div>
+
+                <div class="profile-detail">
+                    <span>Email Address</span>
+                    <strong id="detailEmail">Loading...</strong>
+                </div>
+
+                <div class="profile-detail">
+                    <span>Account ID</span>
+                    <strong id="detailUserId">Loading...</strong>
+                </div>
+
+            </div>
+
+            <a href="/files.html" class="profile-files-btn">
+                View My Files
+            </a>
+
+        </div>
+
+    </main>
+
+    <script src="/auth.js"></script>
+    <script src="/profile.js"></script>
+
+</body>
+
+</html>
