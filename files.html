@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Files - ShareAagan</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">ShareAagan</div>
+
+        <nav class="nav-links">
+            <a href="/index.html">Home</a>
+            <a href="/upload.html">Upload</a>
+            <a href="/files.html">Files</a>
+            <div class="profile-container" id="profileContainer">
+            
+                <a href="/login.html" id="authLink">
+                    Login
+                </a>
+            
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- Main Content -->
+    <main>
+
+        <section class="card files-card">
+
+            <div class="files-header">
+                <div>
+                    <h1>My Files</h1>
+                    <p>View and manage your uploaded files.</p>
+                </div>
+
+                <a href="/upload.html" class="btn upload-btn">
+                    Upload File
+                </a>
+            </div>
+
+
+            <!-- File List -->
+            <div id="fileList">
+
+                <p class="loading-message">
+                    Loading files...
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ShareAagan. All rights reserved.</p>
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        const fileList = document.getElementById("fileList");
+
+
+        async function loadFiles() {
+
+            try {
+
+                const response = await fetch("/files");
+
+
+                // User is not logged in
+                if (response.status === 401) {
+
+                    fileList.innerHTML = `
+                        <div class="login-message">
+                            <h2>Login Required</h2>
+                            <p>Please log in to view your files.</p>
+
+                            <a href="/login.html" class="btn">
+                                Login
+                            </a>
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                if (!response.ok) {
+
+                    fileList.textContent =
+                        "Could not load files.";
+
+                    return;
+                }
+
+
+                const files = await response.json();
+
+
+                fileList.innerHTML = "";
+
+
+                // No files
+                if (files.length === 0) {
+
+                    fileList.innerHTML = `
+                        <div class="empty-files">
+                            <h2>No Files Yet</h2>
+
+                            <p>
+                                You haven't uploaded any files yet.
+                            </p>
+
+                            <a href="/upload.html" class="btn">
+                                Upload Your First File
+                            </a>
+                        </div>
+                    `;
+
+                    return;
+                }
+
+
+                // Display files
+                files.forEach((file) => {
+
+                    const fileItem =
+                        document.createElement("div");
+
+                    fileItem.className = "file-item";
+
+
+                    // File information
+                    const fileInfo =
+                        document.createElement("div");
+
+                    fileInfo.className = "file-info";
+
+
+                    // File icon
+                    const fileIcon =
+                        document.createElement("div");
+
+                    fileIcon.className = "file-icon";
+
+                    fileIcon.textContent = "📄";
+
+
+                    // File name
+                    const fileName =
+                        document.createElement("h3");
+
+                    fileName.textContent =
+                        file.filename;
+
+
+                    // Upload date
+                    const uploadDate =
+                        document.createElement("p");
+
+                    uploadDate.className =
+                        "file-date";
+
+
+                    const date =
+                        new Date(file.uploaded_at);
+
+
+                    uploadDate.textContent =
+                        `Uploaded: ${date.toLocaleString()}`;
+
+
+                    // Put information together
+                    fileInfo.appendChild(fileIcon);
+
+                    const textInfo =
+                        document.createElement("div");
+
+                    textInfo.appendChild(fileName);
+                    textInfo.appendChild(uploadDate);
+
+                    fileInfo.appendChild(textInfo);
+
+
+                    // Buttons container
+                    const fileActions =
+                        document.createElement("div");
+
+                    fileActions.className =
+                        "file-actions";
+
+
+                    // Download button
+                    const downloadButton =
+                        document.createElement("button");
+
+                    downloadButton.textContent =
+                        "Download";
+
+                    downloadButton.className =
+                        "btn";
+
+
+                    downloadButton.addEventListener(
+                        "click",
+                        () => {
+
+                            window.location.href =
+                                `/download?id=${file.id}`;
+
+                        }
+                    );
+
+
+                    // Delete button
+                    const deleteButton =
+                        document.createElement("button");
+
+                    deleteButton.textContent =
+                        "Delete";
+
+                    deleteButton.className =
+                        "btn delete-btn";
+
+
+                    deleteButton.addEventListener(
+                        "click",
+                        async () => {
+
+                            const confirmed =
+                                confirm(
+                                    `Are you sure you want to delete ${file.filename}?`
+                                );
+
+
+                            if (!confirmed) {
+                                return;
+                            }
+
+
+                            const deleteResponse =
+                                await fetch("/delete", {
+
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body: JSON.stringify({
+                                        fileId: file.id
+                                    })
+
+                                });
+
+
+                            const message =
+                                await deleteResponse.text();
+
+
+                            alert(message);
+
+
+                            if (deleteResponse.ok) {
+
+                                loadFiles();
+
+                            }
+
+                        }
+                    );
+
+
+                    // Add buttons
+                    fileActions.appendChild(
+                        downloadButton
+                    );
+
+                    fileActions.appendChild(
+                        deleteButton
+                    );
+
+
+                    // Add actions to file item
+                    fileItem.appendChild(fileInfo);
+
+                    fileItem.appendChild(fileActions);
+
+
+                    // Add file to list
+                    fileList.appendChild(fileItem);
+
+                });
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                fileList.textContent =
+                    "Could not connect to the server.";
+
+            }
+
+        }
+
+        // Logout functionality
+        const logoutLink = document.getElementById("logoutLink");
+
+        logoutLink.addEventListener("click", async (event) => {
+
+            event.preventDefault();
+
+            const response = await fetch("/logout", {
+                method: "POST"
+            });
+
+            if (response.ok) {
+                window.location.href = "/login.html";
+            } else {
+                alert("Could not log out.");
+            }
+        });
+
+        // Load files when page opens
+        loadFiles();
+
+    </script>
+
+// Add the auth.js script to handle authentication and logout functionality
+<script src="/auth.js"></script>
+
+</body>
+
+</html>

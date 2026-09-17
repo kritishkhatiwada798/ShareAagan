@@ -7,7 +7,7 @@
 
     <title>Login / Register - ShareAagan</title>
 
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -21,7 +21,13 @@
                 <a href="/">Home</a>
                 <a href="/upload.html">Upload</a>
                 <a href="/files.html">Files</a>
-                <a href="/login.html">Login</a>
+            <div class="profile-container" id="profileContainer">
+            
+                <a href="/login.html" id="authLink">
+                    Login
+                </a>
+            
+            </div>
             </div>
         </nav>
     </header>
@@ -191,13 +197,41 @@
 
         // Login form submission
         loginForm.addEventListener("submit", async (event) => {
+
             event.preventDefault();
 
-            message.textContent =
-                "Login API is not connected yet.";
+            const email = document.getElementById("loginEmail").value;
+            const password = document.getElementById("loginPassword").value;
+
+            try {
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const message = await response.text();
+
+                if (response.ok) {
+                    alert(message);
+                } else {
+                    alert(message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Could not connect to the server.");
+            }
         });
     </script>
 
+// Add the auth.js script to handle authentication and logout functionality
+<script src="/auth.js"></script>
 </body>
+
 
 </html>

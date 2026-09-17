@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File - ShareAagan</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">ShareAagan</div>
+
+        <nav class="nav-links">
+            <a href="/index.html">Home</a>
+            <a href="/upload.html">Upload</a>
+            <a href="/files.html">Files</a>
+            <div class="profile-container" id="profileContainer">
+            
+                <a href="/login.html" id="authLink">
+                    Login
+                </a>
+            
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section class="card">
+            <h1>Upload a File</h1>
+            <p>Choose a file from your device and share it.</p>
+
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="file">Select File</label>
+                    <input type="file" id="file" name="file" required>
+                </div>
+
+                <button type="submit" class="btn">
+                    Upload File
+                </button>
+            </form>
+
+            <p id="message"></p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ShareAagan. All rights reserved.</p>
+    </footer>
+
+    <!-- Upload JavaScript -->
+    <script>
+        const uploadForm = document.getElementById("uploadForm");
+        const message = document.getElementById("message");
+
+        uploadForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById("file");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                message.textContent = "Please select a file.";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+               const response = await fetch("/upload", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    body: formData
+                });
+
+                const result = await response.text();
+
+                message.textContent = result;
+
+                if (response.ok) {
+                    uploadForm.reset();
+                }
+            } catch (error) {
+                console.error(error);
+                message.textContent = "Could not connect to the server.";
+            }
+        });
+    </script>
+
+// Add the auth.js script to handle authentication and logout functionality
+<script src="/auth.js"></script>
+</body>
+
+
+</html>

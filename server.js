@@ -4,10 +4,55 @@ import {
     getUserByEmail,
     addFile,
     getFiles,
-    deleteFile
+    getFileById,
+    deleteFile,
+    createSession,
+    getSessionByToken,
+    deleteSession
 } from "./database/db.js";
 
 
+// Function to get the logged-in user from the request
+function getLoggedInUser(request) {
+    const cookie = request.headers.get("cookie");
+
+    console.log("Cookie received:", cookie);
+
+    if (!cookie) {
+        return null;
+    }
+
+    const sessionCookie = cookie
+        .split("; ")
+        .find((item) => item.startsWith("session_token="));
+
+    if (!sessionCookie) {
+        return null;
+    }
+
+    const token = sessionCookie.split("=")[1];
+
+    const session = getSessionByToken(token);
+
+    console.log("Session found:", session);
+
+    if (!session) {
+        return null;
+    }
+
+
+    console.log("Session expiry:", session.expires_at);
+    console.log("Current time:", Date.now());
+    console.log("User ID:", session.user_id);
+
+    if (session.expires_at < Math.floor(Date.now() / 1000)) {
+        return null;
+    }
+
+    return session.user_id;
+}
+
+// Start the Deno server
 Deno.serve(async (request) => {
     const url = new URL(request.url);
 
@@ -49,8 +94,73 @@ Deno.serve(async (request) => {
         });
     }
 
+    // Login an existing user
+    if (url.pathname === "/login" && request.method === "POST") {
+        const data = await request.json();
+
+        const email = data.email;
+        const password = data.password;
+
+        if (!email || !password) {
+            return new Response("Email and password are required.", {
+                status: 400
+            });
+        }
+
+        const user = getUserByEmail(email);
+
+        if (!user) {
+            return new Response("Invalid email or password.", {
+                status: 401
+            });
+        }
+
+        const passwordHash = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(password)
+        );
+
+        const hashArray = Array.from(new Uint8Array(passwordHash));
+        const hashedPassword = hashArray
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+
+        if (hashedPassword !== user.password_hash) {
+            return new Response("Invalid email or password.", {
+                status: 401
+            });
+        }
+
+        const tokenBytes = crypto.getRandomValues(new Uint8Array(32));
+
+        const token = Array.from(tokenBytes)
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+
+        const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
+
+        createSession(user.id, token, expiresAt);
+
+        return new Response("Login successful!", {
+            status: 200,
+            headers: {
+                "Set-Cookie": `session_token=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400`
+            }
+
+        });
+    }
+
     // Handle file upload
     if (url.pathname === "/upload" && request.method === "POST") {
+
+        const userId = getLoggedInUser(request);
+        // Check if the user is logged in
+        if (!userId) {
+            return new Response("Please log in to upload files.", {
+                status: 401
+            });
+        }
+
         const formData = await request.formData();
 
         const file = formData.get("file");
@@ -67,19 +177,25 @@ Deno.serve(async (request) => {
 
         await Deno.writeFile(filePath, new Uint8Array(fileData));
 
-        addFile(file.name);
+        addFile(file.name, userId);
 
         return new Response("File uploaded successfully!");
     }
 
-    // Get list of uploaded files
+    // Get files uploaded by the logged-in user
     if (url.pathname === "/files" && request.method === "GET") {
 
-        const files = getFiles();
+        const userId = getLoggedInUser(request);
 
-        const filenames = files.map((file) => file.filename);
+        if (!userId) {
+            return new Response("Please log in to view your files.", {
+                status: 401
+            });
+        }
 
-        return new Response(JSON.stringify(filenames), {
+        const files = getFiles(userId);
+
+        return new Response(JSON.stringify(files), {
             headers: {
                 "content-type": "application/json"
             }
@@ -99,29 +215,182 @@ Deno.serve(async (request) => {
 
     // Delete a file
     if (url.pathname === "/delete" && request.method === "POST") {
+
+        const userId = getLoggedInUser(request);
+
+        if (!userId) {
+            return new Response("Please log in to delete files.", {
+                status: 401
+            });
+        }
+
         const data = await request.json();
 
-        const filename = data.filename;
+        const fileId = data.fileId;
 
-        if (!filename) {
-            return new Response("Filename is required.", {
+        if (!fileId) {
+            return new Response("File ID is required.", {
                 status: 400
             });
         }
 
+        // Check whether the file belongs to the logged-in user
+        const file = getFileById(fileId, userId);
+
+        if (!file) {
+            return new Response("You cannot delete this file.", {
+                status: 403
+            });
+        }
+
+        const filename = file.filename;
         const filePath = "./uploads/" + filename;
 
+        // Delete the physical file first
         try {
             await Deno.remove(filePath);
-            deleteFile(filename);
+        } catch {
+            return new Response("File could not be deleted.", {
+                status: 404
+            });
+        }
 
-            return new Response("File deleted successfully!");
+        // Delete the database record only after the physical file was deleted
+        deleteFile(fileId, userId);
+
+        return new Response("File deleted successfully!");
+    }
+
+    // Download a file
+    if (url.pathname === "/download" && request.method === "GET") {
+
+        const userId = getLoggedInUser(request);
+
+        if (!userId) {
+            return new Response("Please log in to download files.", {
+                status: 401
+            });
+        }
+
+        const fileId = url.searchParams.get("id");
+
+        if (!fileId) {
+            return new Response("File ID is required.", {
+                status: 400
+            });
+        }
+
+        // Find the file and check ownership
+        const file = getFileById(fileId, userId);
+
+        if (!file) {
+            return new Response("You cannot access this file.", {
+                status: 403
+            });
+        }
+
+        const filePath = "./uploads/" + file.filename;
+
+        try {
+            const fileData = await Deno.readFile(filePath);
+
+            return new Response(fileData, {
+                headers: {
+                    "Content-Disposition": `attachment; filename="${file.filename}"`,
+                    "Content-Type": "application/octet-stream"
+                }
+            });
+
         } catch {
             return new Response("File not found.", {
                 status: 404
             });
         }
     }
+
+
+    // Logout
+    if (url.pathname === "/logout" && request.method === "POST") {
+
+        const cookie = request.headers.get("cookie");
+
+        if (cookie) {
+
+            const sessionCookie = cookie
+                .split("; ")
+                .find((item) => item.startsWith("session_token="));
+
+            if (sessionCookie) {
+
+                const token = sessionCookie.split("=")[1];
+
+                // Delete the session from the database
+                deleteSession(token);
+            }
+        }
+
+        return new Response("Logged out successfully.", {
+            status: 200,
+            headers: {
+                "Set-Cookie":
+                    "session_token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0"
+            }
+        });
+    }
+
+    // Endpoint to check if the user is logged in and get their information
+    if (url.pathname === "/me" && request.method === "GET") {
+
+        const userId = getLoggedInUser(request);
+
+        if (!userId) {
+            return new Response(
+                JSON.stringify({
+                    loggedIn: false
+                }),
+                {
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+            );
+        }
+
+        // Find the logged-in user's information
+        const users = getUsers();
+
+        const user = users.find((user) => user.id === userId);
+
+        if (!user) {
+            return new Response(
+                JSON.stringify({
+                    loggedIn: false
+                }),
+                {
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+            );
+        }
+
+        return new Response(
+            JSON.stringify({
+                loggedIn: true,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email
+                }
+            }),
+            {
+                headers: {
+                    "content-type": "application/json"
+                }
+            }
+        );
+    }
+
 
     // Serve files
     let filePath = url.pathname;
