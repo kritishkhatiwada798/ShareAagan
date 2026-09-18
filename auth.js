@@ -12,16 +12,28 @@ async function updateAuthButton() {
         const response = await fetch("/me");
         const data = await response.json();
 
-        // User is logged in
+        // =====================================================
+        // USER IS LOGGED IN
+        // =====================================================
+
         if (data.loggedIn) {
 
             const username = data.user.username;
 
             // Get first letter of username
-            const firstLetter = username.charAt(0).toUpperCase();
+            const firstLetter =
+                username.charAt(0).toUpperCase();
+
+
+            // =================================================
+            // PROFILE DROPDOWN
+            // =================================================
 
             profileContainer.innerHTML = `
-                <button class="profile-button" id="profileButton">
+
+                <button
+                    class="profile-button"
+                    id="profileButton">
 
                     <span class="profile-avatar">
                         ${firstLetter}
@@ -37,7 +49,10 @@ async function updateAuthButton() {
 
                 </button>
 
-                <div class="profile-menu" id="profileMenu">
+
+                <div
+                    class="profile-menu"
+                    id="profileMenu">
 
                     <div class="profile-menu-header">
 
@@ -46,27 +61,40 @@ async function updateAuthButton() {
                         </div>
 
                         <div>
-                            <strong>${username}</strong>
-                            <small>${data.user.email}</small>
+
+                            <strong>
+                                ${username}
+                            </strong>
+
+                            <small>
+                                ${data.user.email}
+                            </small>
+
                         </div>
 
                     </div>
 
+
                     <div class="profile-menu-divider"></div>
+
 
                     <a href="/profile.html">
                         👤 Profile
                     </a>
 
+
                     <a href="/files.html">
                         📁 My Files
                     </a>
+
 
                     <a href="#">
                         ⚙️ Settings
                     </a>
 
+
                     <div class="profile-menu-divider"></div>
+
 
                     <button id="logoutButton">
                         🚪 Logout
@@ -75,77 +103,119 @@ async function updateAuthButton() {
                 </div>
             `;
 
+
+            // =================================================
+            // PROFILE BUTTON
+            // =================================================
+
             const profileButton =
                 document.getElementById("profileButton");
 
             const profileMenu =
                 document.getElementById("profileMenu");
 
-            // Open / close profile menu
+
             profileButton.addEventListener("click", () => {
 
                 profileMenu.classList.toggle("show");
 
             });
 
-            // Logout
+
+            // =================================================
+            // LOGOUT
+            // =================================================
+
             const logoutButton =
                 document.getElementById("logoutButton");
 
-            logoutButton.addEventListener("click", async () => {
+            logoutButton.addEventListener(
+                "click",
+                async () => {
 
-                const logoutResponse =
-                    await fetch("/logout", {
-                        method: "POST"
-                    });
+                    const logoutResponse =
+                        await fetch("/logout", {
+                            method: "POST"
+                        });
 
-                if (logoutResponse.ok) {
 
-                    window.location.href = "/index.html";
+                    if (logoutResponse.ok) {
 
-                } else {
+                        globalThis.location.href =
+                            "/index.html";
 
-                    alert("Could not log out.");
+                    } else {
+
+                        alert("Could not log out.");
+
+                    }
 
                 }
-
-            });
+            );
 
         }
 
-        // User is NOT logged in
+
+        // =====================================================
+        // USER IS NOT LOGGED IN
+        // =====================================================
+
         else {
+
             profileContainer.innerHTML = `
-        <a href="/login.html" id="authLink">
-            Login
-        </a>
-    `;
+
+                <a
+                    href="/login.html"
+                    id="authLink">
+
+                    Login
+
+                </a>
+
+            `;
+
 
             // Show welcome popup when logged out
             const welcomePopup =
                 document.getElementById("welcomePopup");
 
+
             if (welcomePopup) {
+
                 welcomePopup.classList.add("show");
+
             }
+
 
             const closePopup =
                 document.getElementById("closePopup");
 
+
             if (closePopup) {
+
                 closePopup.onclick = () => {
+
                     welcomePopup.classList.remove("show");
+
                 };
+
             }
+
 
             const continueGuest =
                 document.getElementById("continueGuest");
 
+
             if (continueGuest) {
+
                 continueGuest.onclick = () => {
+
                     welcomePopup.classList.remove("show");
+
                 };
+
             }
+
         }
 
     } catch (error) {
@@ -158,4 +228,51 @@ async function updateAuthButton() {
     }
 }
 
+
+// =============================================================
+// NOTIFICATION BUTTON
+// =============================================================
+
+function setupNotifications() {
+
+    const notificationButton =
+        document.getElementById("notificationButton");
+
+    const notificationMenu =
+        document.getElementById("notificationMenu");
+
+
+    if (!notificationButton || !notificationMenu) {
+        return;
+    }
+
+
+    notificationButton.addEventListener("click", (event) => {
+
+        event.stopPropagation();
+
+        notificationMenu.classList.toggle("show");
+
+    });
+
+
+    // Close notification menu when clicking elsewhere
+    document.addEventListener("click", (event) => {
+
+        if (
+            !notificationMenu.contains(event.target) &&
+            !notificationButton.contains(event.target)
+        ) {
+
+            notificationMenu.classList.remove("show");
+
+        }
+
+    });
+
+}
+
+
 updateAuthButton();
+
+setupNotifications();

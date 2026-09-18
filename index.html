@@ -13,29 +13,81 @@
 <body>
 
     <!-- Header -->
-    <header>
-        <nav class="navbar">
-            <a href="/" class="logo">ShareAagan</a>
+   <header>
+    <nav class="navbar">
 
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/upload.html">Upload</a>
-                <a href="/files.html">Files</a>
-                <div class="profile-container" id="profileContainer">
+        <a href="/" class="logo">
+            ShareAagan
+        </a>
 
-                    <a href="/login.html" id="authLink">
-                        Login
-                    </a>
+        <div class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <!-- Notifications -->
+            <div class="notification-container">
+
+                <button
+                    type="button"
+                    class="notification-button"
+                    id="notificationButton"
+                    aria-label="Notifications">
+
+                    🔔
+
+                </button>
+
+                <div
+                    class="notification-menu"
+                    id="notificationMenu">
+
+                    <div class="notification-header">
+                        <strong>Notifications</strong>
+                    </div>
+
+                    <div class="notification-divider"></div>
+
+                    <div class="no-notifications">
+                        <span>🔔</span>
+                        <p>No new notifications</p>
+                    </div>
 
                 </div>
+
             </div>
-        </nav>
-    </header>
+
+
+            <!-- Profile -->
+            <div
+                class="profile-container"
+                id="profileContainer">
+
+                <a
+                    href="/login.html"
+                    id="authLink">
+
+                    Login
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+</header>
+
 
     <!-- Homepage content -->
     <main>
+
         <section class="hero">
-            <h1>Share Files with Ease</h1>
+
+            <h1>
+                Share Files with Ease
+            </h1>
 
             <p>
                 Welcome to ShareAagan, a simple platform
@@ -49,29 +101,45 @@
             <a href="/files.html" class="btn btn-secondary">
                 View Files
             </a>
+
         </section>
+
     </main>
+
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 ShareAagan. All rights reserved.</p>
+
+        <p>
+            &copy; 2026 ShareAagan. All rights reserved.
+        </p>
+
     </footer>
 
-    // Add the auth.js script to handle authentication and logout functionality
+
+    <!-- Authentication JavaScript -->
     <script src="/auth.js"></script>
+
 
     <!-- Welcome Popup -->
     <div class="welcome-overlay" id="welcomePopup">
 
         <div class="welcome-popup">
 
-            <button class="popup-close" id="closePopup" aria-label="Close popup">
+            <button
+                class="popup-close"
+                id="closePopup"
+                aria-label="Close popup">
                 &times;
             </button>
 
-            <div class="popup-icon">☁</div>
+            <div class="popup-icon">
+                ☁
+            </div>
 
-            <h2>Welcome to ShareAagan!</h2>
+            <h2>
+                Welcome to ShareAagan!
+            </h2>
 
             <p>
                 Share your files easily and securely.
@@ -95,6 +163,5 @@
     </div>
 
 </body>
-
 
 </html>

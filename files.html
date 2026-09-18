@@ -2,22 +2,33 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>My Files - ShareAagan</title>
+
     <link rel="stylesheet" href="/style.css">
+
 </head>
 
 <body>
 
+
     <!-- Header -->
     <header class="navbar">
-        <div class="logo">ShareAagan</div>
+
+        <div class="logo">
+            ShareAagan
+        </div>
 
         <nav class="nav-links">
-            <a href="/index.html">Home</a>
-            <a href="/upload.html">Upload</a>
-            <a href="/files.html">Files</a>
+
+            <a href="/index.html">
+                Home
+            </a>
+
             <div class="profile-container" id="profileContainer">
 
                 <a href="/login.html" id="authLink">
@@ -25,7 +36,9 @@
                 </a>
 
             </div>
+
         </nav>
+
     </header>
 
 
@@ -34,13 +47,21 @@
 
         <section class="card files-card">
 
+
             <div class="files-header">
+
                 <div>
-                    <h1>My Files</h1>
-                    <p>View and manage your uploaded files.</p>
+
+                    <h1>
+                        My Files
+                    </h1>
+
+                    <p>
+                        View and manage your uploaded files.
+                    </p>
+
                 </div>
 
-                
             </div>
 
 
@@ -60,35 +81,50 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 ShareAagan. All rights reserved.</p>
+
+        <p>
+            &copy; 2026 ShareAagan. All rights reserved.
+        </p>
+
     </footer>
 
 
     <!-- JavaScript -->
     <script>
 
-        const fileList = document.getElementById("fileList");
+        const fileList =
+            document.getElementById("fileList");
 
 
         async function loadFiles() {
 
             try {
 
-                const response = await fetch("/files");
+                const response =
+                    await fetch("/files");
 
 
                 // User is not logged in
                 if (response.status === 401) {
 
                     fileList.innerHTML = `
+
                         <div class="login-message">
-                            <h2>Login Required</h2>
-                            <p>Please log in to view your files.</p>
+
+                            <h2>
+                                Login Required
+                            </h2>
+
+                            <p>
+                                Please log in to view your files.
+                            </p>
 
                             <a href="/login.html" class="btn">
                                 Login
                             </a>
+
                         </div>
+
                     `;
 
                     return;
@@ -104,7 +140,8 @@
                 }
 
 
-                const files = await response.json();
+                const files =
+                    await response.json();
 
 
                 fileList.innerHTML = "";
@@ -114,8 +151,12 @@
                 if (files.length === 0) {
 
                     fileList.innerHTML = `
+
                         <div class="empty-files">
-                            <h2>No Files Yet</h2>
+
+                            <h2>
+                                No Files Yet
+                            </h2>
 
                             <p>
                                 You haven't uploaded any files yet.
@@ -124,7 +165,9 @@
                             <a href="/upload.html" class="btn">
                                 Upload Your First File
                             </a>
+
                         </div>
+
                     `;
 
                     return;
@@ -137,23 +180,27 @@
                     const fileItem =
                         document.createElement("div");
 
-                    fileItem.className = "file-item";
+                    fileItem.className =
+                        "file-item";
 
 
                     // File information
                     const fileInfo =
                         document.createElement("div");
 
-                    fileInfo.className = "file-info";
+                    fileInfo.className =
+                        "file-info";
 
 
                     // File icon
                     const fileIcon =
                         document.createElement("div");
 
-                    fileIcon.className = "file-icon";
+                    fileIcon.className =
+                        "file-icon";
 
-                    fileIcon.textContent = "📄";
+                    fileIcon.textContent =
+                        "📄";
 
 
                     // File name
@@ -173,7 +220,9 @@
 
 
                     const date =
-                        new Date(file.uploaded_at);
+                        new Date(
+                            file.uploaded_at
+                        );
 
 
                     uploadDate.textContent =
@@ -181,15 +230,25 @@
 
 
                     // Put information together
-                    fileInfo.appendChild(fileIcon);
+                    fileInfo.appendChild(
+                        fileIcon
+                    );
+
 
                     const textInfo =
                         document.createElement("div");
 
-                    textInfo.appendChild(fileName);
-                    textInfo.appendChild(uploadDate);
+                    textInfo.appendChild(
+                        fileName
+                    );
 
-                    fileInfo.appendChild(textInfo);
+                    textInfo.appendChild(
+                        uploadDate
+                    );
+
+                    fileInfo.appendChild(
+                        textInfo
+                    );
 
 
                     // Buttons container
@@ -244,25 +303,28 @@
 
 
                             if (!confirmed) {
+
                                 return;
+
                             }
 
 
                             const deleteResponse =
-                                await fetch("/delete", {
+                                await fetch(
+                                    "/delete",
+                                    {
+                                        method: "POST",
 
-                                    method: "POST",
+                                        headers: {
+                                            "Content-Type":
+                                                "application/json"
+                                        },
 
-                                    headers: {
-                                        "Content-Type":
-                                            "application/json"
-                                    },
-
-                                    body: JSON.stringify({
-                                        fileId: file.id
-                                    })
-
-                                });
+                                        body: JSON.stringify({
+                                            fileId: file.id
+                                        })
+                                    }
+                                );
 
 
                             const message =
@@ -293,13 +355,19 @@
 
 
                     // Add actions to file item
-                    fileItem.appendChild(fileInfo);
+                    fileItem.appendChild(
+                        fileInfo
+                    );
 
-                    fileItem.appendChild(fileActions);
+                    fileItem.appendChild(
+                        fileActions
+                    );
 
 
                     // Add file to list
-                    fileList.appendChild(fileItem);
+                    fileList.appendChild(
+                        fileItem
+                    );
 
                 });
 
@@ -316,12 +384,14 @@
 
         }
 
+
         // Load files when page opens
         loadFiles();
 
     </script>
 
-    // Add the auth.js script to handle authentication and logout functionality
+
+    <!-- Authentication JavaScript -->
     <script src="/auth.js"></script>
 
 </body>
