@@ -3,6 +3,11 @@ import { Database } from "@db/sqlite";
 const db = new Database("shareaagan.db");
 
 
+// =========================================================
+// DATABASE TABLES
+// =========================================================
+
+
 // Create the users table if it doesn't exist
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
@@ -40,24 +45,52 @@ db.exec(`
     filename TEXT NOT NULL,
     uploaded_at TEXT NOT NULL,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    recipient_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (recipient_id) REFERENCES users(id)
   )
 `);
 
 
-// Check whether password_hash already exists
-const columns = db.prepare("PRAGMA table_info(users)").all();
+// =========================================================
+// DATABASE MIGRATIONS
+// =========================================================
 
-const hasPasswordHash = columns.some(
+
+// Check whether password_hash already exists
+const userColumns = db.prepare(
+  "PRAGMA table_info(users)"
+).all();
+
+const hasPasswordHash = userColumns.some(
   (column) => column.name === "password_hash"
 );
 
 
-// Add password_hash to an existing table if needed
+// Add password_hash to an existing users table if needed
 if (!hasPasswordHash) {
   db.exec(`
     ALTER TABLE users
     ADD COLUMN password_hash TEXT NOT NULL DEFAULT ''
+  `);
+}
+
+
+// Check whether recipient_id already exists
+const fileColumns = db.prepare(
+  "PRAGMA table_info(files)"
+).all();
+
+const hasRecipientId = fileColumns.some(
+  (column) => column.name === "recipient_id"
+);
+
+
+// Add recipient_id to an existing files table if needed
+if (!hasRecipientId) {
+  db.exec(`
+    ALTER TABLE files
+    ADD COLUMN recipient_id INTEGER
   `);
 }
 
@@ -67,39 +100,70 @@ if (!hasPasswordHash) {
 // =========================================================
 
 
-// Function to add a user to the database
+// Add a user
 export function addUser(username, email, passwordHash) {
 
   db.prepare(`
     INSERT INTO users (username, email, password_hash)
     VALUES (?, ?, ?)
-  `).run(username, email, passwordHash);
+  `).run(
+    username,
+    email,
+    passwordHash
+  );
 
 }
 
 
-// Function to retrieve a user by email from the database
+// Get user by email
 export function getUserByEmail(email) {
 
   return db.prepare(`
-    SELECT * FROM users
+    SELECT *
+    FROM users
     WHERE email = ?
   `).get(email);
 
 }
 
 
-// Function to retrieve all users from the database
+// Get all users
 export function getUsers() {
 
   return db.prepare(`
-    SELECT * FROM users
+    SELECT id, username, email
+    FROM users
+    ORDER BY username ASC
   `).all();
 
 }
 
+// Get a user by ID
+export function getUserById(userId) {
 
-// Function to update a user's profile
+  return db.prepare(`
+    SELECT id, username, email
+    FROM users
+    WHERE id = ?
+  `).get(userId);
+
+}
+
+
+// Get all users except the currently logged-in user
+export function getOtherUsers(userId) {
+
+  return db.prepare(`
+    SELECT id, username, email
+    FROM users
+    WHERE id != ?
+    ORDER BY username ASC
+  `).all(userId);
+
+}
+
+
+// Update a user's profile
 export function updateUser(id, username, email, passwordHash) {
 
   db.prepare(`
@@ -108,9 +172,15 @@ export function updateUser(id, username, email, passwordHash) {
         email = ?,
         password_hash = ?
     WHERE id = ?
-  `).run(username, email, passwordHash, id);
+  `).run(
+    username,
+    email,
+    passwordHash,
+    id
+  );
 
 }
+
 
 
 // =========================================================
@@ -118,11 +188,16 @@ export function updateUser(id, username, email, passwordHash) {
 // =========================================================
 
 
-// Function to add a file to the database
+// Existing function
+// Keeps compatibility with your current upload system
 export function addFile(filename, userId) {
 
   db.prepare(`
-    INSERT INTO files (filename, uploaded_at, user_id)
+    INSERT INTO files (
+      filename,
+      uploaded_at,
+      user_id
+    )
     VALUES (?, ?, ?)
   `).run(
     filename,
@@ -133,39 +208,101 @@ export function addFile(filename, userId) {
 }
 
 
-// Get files uploaded by a specific user from the database
-export function getFiles(userId) {
+// New function for sending a file to another user
+export function sendFile(filename, senderId, recipientId) {
+
+  db.prepare(`
+    INSERT INTO files (
+      filename,
+      uploaded_at,
+      user_id,
+      recipient_id
+    )
+    VALUES (?, ?, ?, ?)
+  `).run(
+    filename,
+    new Date().toISOString(),
+    senderId,
+    recipientId
+  );
+
+}
+
+
+// Get files sent by a specific user
+export function getSentFiles(userId) {
 
   return db.prepare(`
-    SELECT * FROM files
-    WHERE user_id = ?
-    ORDER BY id DESC
+    SELECT
+      files.*,
+      users.username AS recipient_username
+    FROM files
+    LEFT JOIN users
+      ON files.recipient_id = users.id
+    WHERE files.user_id = ?
+    ORDER BY files.id DESC
   `).all(userId);
 
 }
 
 
-// Get a specific file by its ID and user ID
-export function getFileById(fileId, userId) {
+// Get files received by a specific user
+export function getReceivedFiles(userId) {
 
+  return db.prepare(`
+    SELECT
+      files.*,
+      users.username AS sender_username
+    FROM files
+    LEFT JOIN users
+      ON files.user_id = users.id
+    WHERE files.recipient_id = ?
+    ORDER BY files.id DESC
+  `).all(userId);
+
+}
+
+
+// Get a specific file sent or received by the user
+export function getFileById(fileId, userId) {
+  return db.prepare(`
+    SELECT *
+    FROM files
+    WHERE id = ?
+    AND (
+      user_id = ?
+      OR recipient_id = ?
+    )
+  `).get(
+    fileId,
+    userId,
+    userId
+  );
+}
+
+// Get a specific file owned by the user (sent by the user)
+export function getOwnedFileById(fileId, userId) {
   return db.prepare(`
     SELECT *
     FROM files
     WHERE id = ?
     AND user_id = ?
   `).get(fileId, userId);
-
 }
 
 
-// Delete a file only if it belongs to the user
+// Delete a file only if the current user
+// is the sender
 export function deleteFile(fileId, userId) {
 
   const result = db.prepare(`
     DELETE FROM files
     WHERE id = ?
     AND user_id = ?
-  `).run(fileId, userId);
+  `).run(
+    fileId,
+    userId
+  );
 
   return result.changes;
 
@@ -177,18 +314,26 @@ export function deleteFile(fileId, userId) {
 // =========================================================
 
 
-// Function to create a new session in the database
+// Create a new session
 export function createSession(userId, token, expiresAt) {
 
   db.prepare(`
-    INSERT INTO sessions (user_id, token, expires_at)
+    INSERT INTO sessions (
+      user_id,
+      token,
+      expires_at
+    )
     VALUES (?, ?, ?)
-  `).run(userId, token, expiresAt);
+  `).run(
+    userId,
+    token,
+    expiresAt
+  );
 
 }
 
 
-// Function to retrieve a session by token
+// Get session by token
 export function getSessionByToken(token) {
 
   return db.prepare(`
@@ -200,7 +345,7 @@ export function getSessionByToken(token) {
 }
 
 
-// Function to delete a session by token
+// Delete session by token
 export function deleteSession(token) {
 
   db.prepare(`

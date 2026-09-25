@@ -7,14 +7,13 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Upload File - ShareAagan</title>
+    <title>Send File - ShareAagan</title>
 
     <link rel="stylesheet" href="/style.css">
 
 </head>
 
 <body>
-
 
     <!-- Header -->
     <header class="navbar">
@@ -48,33 +47,51 @@
         <section class="card">
 
             <h1>
-                Upload a File
+                Send a File
             </h1>
 
             <p>
-                Choose a file from your device and share it.
+                Choose a recipient and a file to send.
             </p>
 
 
-            <form id="uploadForm">
+            <form id="sendFileForm">
 
+
+                <!-- Recipient -->
+                <div class="form-group">
+
+                    <label for="recipient">
+                        Send To
+                    </label>
+
+                    <select id="recipient" name="recipient" required>
+
+                        <option value="">
+                            Select a recipient
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- File -->
                 <div class="form-group">
 
                     <label for="file">
                         Select File
                     </label>
 
-                    <input
-                        type="file"
-                        id="file"
-                        name="file"
-                        required>
+                    <input type="file" id="file" name="file" required>
 
                 </div>
 
 
                 <button type="submit" class="btn">
-                    Upload File
+
+                    Send File
+
                 </button>
 
             </form>
@@ -97,17 +114,81 @@
     </footer>
 
 
-    <!-- Upload JavaScript -->
     <script>
 
-        const uploadForm =
-            document.getElementById("uploadForm");
+        const sendFileForm =
+            document.getElementById("sendFileForm");
+
+        const recipientSelect =
+            document.getElementById("recipient");
 
         const message =
             document.getElementById("message");
 
 
-        uploadForm.addEventListener(
+        // =====================================================
+        // LOAD USERS
+        // =====================================================
+
+        async function loadUsers() {
+
+            try {
+
+                const response =
+                    await fetch("/users", {
+                        credentials: "same-origin"
+                    });
+
+
+                if (!response.ok) {
+
+                    message.textContent =
+                        "Please log in to send a file.";
+
+                    return;
+                }
+
+
+                const users =
+                    await response.json();
+
+
+                users.forEach(user => {
+
+                    const option =
+                        document.createElement("option");
+
+                    option.value = user.id;
+
+                    option.textContent =
+                        `${user.username} (${user.email})`;
+
+                    recipientSelect.appendChild(option);
+
+                });
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                message.textContent =
+                    "Could not load users.";
+
+            }
+
+        }
+
+
+        loadUsers();
+
+
+        // =====================================================
+        // SEND FILE
+        // =====================================================
+
+        sendFileForm.addEventListener(
             "submit",
             async (event) => {
 
@@ -120,6 +201,19 @@
                 const file =
                     fileInput.files[0];
 
+                const recipientId =
+                    recipientSelect.value;
+
+
+                if (!recipientId) {
+
+                    message.textContent =
+                        "Please select a recipient.";
+
+                    return;
+
+                }
+
 
                 if (!file) {
 
@@ -127,11 +221,13 @@
                         "Please select a file.";
 
                     return;
+
                 }
 
 
                 const formData =
                     new FormData();
+
 
                 formData.append(
                     "file",
@@ -139,11 +235,17 @@
                 );
 
 
+                formData.append(
+                    "recipientId",
+                    recipientId
+                );
+
+
                 try {
 
                     const response =
                         await fetch(
-                            "/upload",
+                            "/send-file",
                             {
                                 method: "POST",
                                 credentials: "same-origin",
@@ -162,7 +264,7 @@
 
                     if (response.ok) {
 
-                        uploadForm.reset();
+                        sendFileForm.reset();
 
                     }
 

@@ -1,11 +1,16 @@
 import {
     getUsers,
+    getOtherUsers,
+    getUserById,
     addUser,
     getUserByEmail,
     updateUser,
     addFile,
-    getFiles,
+    sendFile,
+    getReceivedFiles,
+    getSentFiles,
     getFileById,
+    getOwnedFileById,
     deleteFile,
     createSession,
     getSessionByToken,
@@ -482,18 +487,125 @@ Deno.serve(async (request) => {
 
     }
 
+    // =========================================================
+    // SEND FILE TO ANOTHER USER
+    // =========================================================
+
+    if (url.pathname === "/send-file" && request.method === "POST") {
+
+        const senderId = getLoggedInUser(request);
+
+        if (!senderId) {
+            return new Response(
+                "Please log in to send files.",
+                { status: 401 }
+            );
+        }
+
+
+        const formData = await request.formData();
+
+        const file = formData.get("file");
+
+        const recipientId =
+            Number(formData.get("recipientId"));
+
+
+        // Check file
+        if (!(file instanceof File)) {
+
+            return new Response(
+                "No file was selected.",
+                { status: 400 }
+            );
+        }
+
+
+        // Check recipient
+        if (!recipientId) {
+
+            return new Response(
+                "Please select a recipient.",
+                { status: 400 }
+            );
+        }
+
+
+        // Prevent sending to yourself
+        if (recipientId === senderId) {
+
+            return new Response(
+                "You cannot send a file to yourself.",
+                { status: 400 }
+            );
+        }
+
+
+        // Check recipient exists
+        const recipient =
+            getUserById(recipientId);
+
+        if (!recipient) {
+
+            return new Response(
+                "Recipient does not exist.",
+                { status: 404 }
+            );
+        }
+
+
+        // Save the file
+        const filePath =
+            "./uploads/" + file.name;
+
+        const fileData =
+            await file.arrayBuffer();
+
+
+        await Deno.writeFile(
+            filePath,
+            new Uint8Array(fileData)
+        );
+
+
+        // Store file information
+        sendFile(
+            file.name,
+            senderId,
+            recipientId
+        );
+
+
+        return new Response(
+            "File sent successfully!",
+            { status: 200 }
+        );
+    } 
 
     // =====================================================
     // GET USERS
     // =====================================================
 
-    if (
-        url.pathname === "/users" &&
-        request.method === "GET"
-    ) {
+    // GET OTHER USERS
+    if (url.pathname === "/users" && request.method === "GET") {
 
-        const users = getUsers();
+        const userId = getLoggedInUser(request);
 
+        if (!userId) {
+            return new Response(
+                JSON.stringify({
+                    error: "Please log in."
+                }),
+                {
+                    status: 401,
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+            );
+        }
+
+        const users = getOtherUsers(userId);
 
         return new Response(
             JSON.stringify(users),
@@ -503,7 +615,6 @@ Deno.serve(async (request) => {
                 }
             }
         );
-
     }
 
 
@@ -549,10 +660,7 @@ Deno.serve(async (request) => {
 
 
         // Check whether the file belongs to the logged-in user
-        const file = getFileById(
-            fileId,
-            userId
-        );
+        const file = getOwnedFileById(fileId, userId);
 
 
         if (!file) {
