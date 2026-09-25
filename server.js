@@ -1,9 +1,9 @@
 import {
     getUsers,
     getOtherUsers,
-    getUserById,
     addUser,
     getUserByEmail,
+    getUserById,
     updateUser,
     addFile,
     sendFile,
@@ -14,7 +14,11 @@ import {
     deleteFile,
     createSession,
     getSessionByToken,
-    deleteSession
+    deleteSession,
+    createNotification,
+    getNotifications,
+    getUnreadNotificationCount,
+    markNotificationAsRead
 } from "./database/db.js";
 
 
@@ -569,10 +573,19 @@ Deno.serve(async (request) => {
 
 
         // Store file information
-        sendFile(
+        const fileId = sendFile(
             file.name,
             senderId,
             recipientId
+        );
+
+        const sender =
+            getUserById(senderId);
+
+        createNotification(
+            recipientId,
+            `${sender.username} sent you a file: ${file.name}`,
+            fileId
         );
 
 
@@ -580,7 +593,7 @@ Deno.serve(async (request) => {
             "File sent successfully!",
             { status: 200 }
         );
-    } 
+    }
 
     // =====================================================
     // GET USERS
@@ -934,6 +947,199 @@ Deno.serve(async (request) => {
 
     }
 
+
+    // =====================================================
+    // GET RECEIVED FILES
+    // =====================================================
+    if (
+        url.pathname === "/received-files" &&
+        request.method === "GET"
+    ) {
+
+        const userId =
+            getLoggedInUser(request);
+
+        if (!userId) {
+
+            return new Response(
+                JSON.stringify({
+                    error: "Please log in."
+                }),
+                {
+                    status: 401,
+                    headers: {
+                        "content-type":
+                            "application/json"
+                    }
+                }
+            );
+
+        }
+
+        const files =
+            getReceivedFiles(userId);
+
+        return new Response(
+            JSON.stringify(files),
+            {
+                headers: {
+                    "content-type":
+                        "application/json"
+                }
+            }
+        );
+
+    }
+
+    // =========================================================
+    // GET SENT FILES
+    // =========================================================
+
+    if (
+        url.pathname === "/sent-files" &&
+        request.method === "GET"
+    ) {
+
+        const userId =
+            getLoggedInUser(request);
+
+        if (!userId) {
+
+            return new Response(
+                JSON.stringify({
+                    error: "Please log in."
+                }),
+                {
+                    status: 401,
+                    headers: {
+                        "content-type":
+                            "application/json"
+                    }
+                }
+            );
+
+        }
+
+        const files =
+            getSentFiles(userId);
+
+        return new Response(
+            JSON.stringify(files),
+            {
+                headers: {
+                    "content-type":
+                        "application/json"
+                }
+            }
+        );
+
+    }
+
+    // =========================================================
+    // GET NOTIFICATIONS
+    // =========================================================
+
+    if (
+        url.pathname === "/notifications" &&
+        request.method === "GET"
+    ) {
+
+        const userId =
+            getLoggedInUser(request);
+
+
+        if (!userId) {
+
+            return new Response(
+                JSON.stringify({
+                    error: "Please log in."
+                }),
+                {
+                    status: 401,
+
+                    headers: {
+                        "content-type":
+                            "application/json"
+                    }
+                }
+            );
+
+        }
+
+
+        const notifications =
+            getNotifications(userId);
+
+
+        return new Response(
+            JSON.stringify(notifications),
+            {
+                headers: {
+                    "content-type":
+                        "application/json"
+                }
+            }
+        );
+
+    }
+
+
+    // =========================================================
+    // MARK NOTIFICATION AS READ
+    // =========================================================
+
+    if (
+        url.pathname === "/notifications/read" &&
+        request.method === "POST"
+    ) {
+
+        const userId =
+            getLoggedInUser(request);
+
+
+        if (!userId) {
+
+            return new Response(
+                "Please log in.",
+                {
+                    status: 401
+                }
+            );
+
+        }
+
+
+        const data =
+            await request.json();
+
+
+        const notificationId =
+            data.notificationId;
+
+
+        if (!notificationId) {
+
+            return new Response(
+                "Notification ID is required.",
+                {
+                    status: 400
+                }
+            );
+
+        }
+
+
+        markNotificationAsRead(
+            notificationId,
+            userId
+        );
+
+
+        return new Response(
+            "Notification marked as read."
+        );
+
+    }
 
     // =====================================================
     // SERVE FILES

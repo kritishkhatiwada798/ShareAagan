@@ -1,167 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>ShareAagan - Home</title>
 
     <link rel="stylesheet" href="/style.css">
-</head>
+  </head>
 
-<body>
-
+  <body>
     <!-- Header -->
-   <header>
-    <nav class="navbar">
-
+    <header>
+      <nav class="navbar">
         <a href="/" class="logo">
             ShareAagan
         </a>
 
         <div class="nav-links">
-
-            <a href="/">
+          <a href="/">
                 Home
             </a>
 
-            <!-- Notifications -->
-            <div class="notification-container">
-
-                <button
-                    type="button"
-                    class="notification-button"
-                    id="notificationButton"
-                    aria-label="Notifications">
+          <!-- Notifications -->
+          <div class="notification-container">
+            <button
+              type="button"
+              class="notification-button"
+              id="notificationButton"
+              aria-label="Notifications">
 
                     🔔
 
                 </button>
 
-                <div
-                    class="notification-menu"
-                    id="notificationMenu">
-
-                    <div class="notification-header">
-                        <strong>Notifications</strong>
-                    </div>
-
-                    <div class="notification-divider"></div>
-
-                    <div class="no-notifications">
-                        <span>🔔</span>
-                        <p>No new notifications</p>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Profile -->
             <div
-                class="profile-container"
-                id="profileContainer">
+              class="notification-menu"
+              id="notificationMenu">
+              <div class="notification-header">
+                <strong>Notifications</strong>
+              </div>
 
-                <a
-                    href="/login.html"
-                    id="authLink">
+              <div class="notification-divider"></div>
+
+              <div
+                class="notification-content">
+                <div class="no-notifications">
+                  <span>🔔</span>
+
+                  <p>
+                No notifications
+            </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile -->
+          <div
+            class="profile-container"
+            id="profileContainer">
+            <a
+              href="/login.html"
+              id="authLink">
 
                     Login
 
                 </a>
-
-            </div>
-
+          </div>
         </div>
-
-    </nav>
-</header>
-
+      </nav>
+    </header>
 
     <!-- Homepage content -->
     <main>
-
-        <section class="hero">
-
-            <h1>
+      <section class="hero">
+        <h1>
                 Share Files with Ease
             </h1>
 
-            <p>
+        <p>
                 Welcome to ShareAagan, a simple platform
-                to upload, store, and share your files.
+                to send, your files.
             </p>
 
-            <a href="/upload.html" class="btn">
-                Upload Files
+        <a href="/send.html" class="btn">
+                Send Files
             </a>
 
-            <a href="/files.html" class="btn btn-secondary">
+        <a href="/files.html" class="btn btn-secondary">
                 View Files
             </a>
-
-        </section>
-
+      </section>
     </main>
-
 
     <!-- Footer -->
     <footer>
-
-        <p>
+      <p>
             &copy; 2026 ShareAagan. All rights reserved.
         </p>
-
     </footer>
-
 
     <!-- Authentication JavaScript -->
     <script src="/auth.js"></script>
 
-
     <!-- Welcome Popup -->
     <div class="welcome-overlay" id="welcomePopup">
-
-        <div class="welcome-popup">
-
-            <button
-                class="popup-close"
-                id="closePopup"
-                aria-label="Close popup">
+      <div class="welcome-popup">
+        <button
+          class="popup-close"
+          id="closePopup"
+          aria-label="Close popup">
                 &times;
             </button>
 
-            <div class="popup-icon">
+        <div class="popup-icon">
                 ☁
             </div>
 
-            <h2>
+        <h2>
                 Welcome to ShareAagan!
             </h2>
 
-            <p>
+        <p>
                 Share your files easily and securely.
                 Log in or create an account to get started.
             </p>
 
-            <a href="/login.html" class="popup-login">
+        <a href="/login.html" class="popup-login">
                 Login
             </a>
 
-            <a href="/login.html" class="popup-register">
+        <a href="/login.html" class="popup-register">
                 Create an Account
             </a>
 
-            <button class="popup-guest" id="continueGuest">
+        <button class="popup-guest" id="continueGuest">
                 Continue as Guest
             </button>
-
-        </div>
-
+      </div>
     </div>
-
-</body>
-
+  </body>
 </html>

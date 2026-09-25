@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-
+  <head>
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,390 +8,390 @@
     <title>My Files - ShareAagan</title>
 
     <link rel="stylesheet" href="/style.css">
+  </head>
 
-</head>
-
-<body>
-
-
+  <body>
     <!-- Header -->
     <header class="navbar">
-
-        <div class="logo">
+      <div class="logo">
             ShareAagan
         </div>
 
-        <nav class="nav-links">
-
-            <a href="/index.html">
+      <nav class="nav-links">
+        <a href="/index.html">
                 Home
             </a>
 
-            <div class="profile-container" id="profileContainer">
-
-                <a href="/login.html" id="authLink">
+        <div class="profile-container" id="profileContainer">
+          <a href="/login.html" id="authLink">
                     Login
                 </a>
-
-            </div>
-
-        </nav>
-
+        </div>
+      </nav>
     </header>
-
 
     <!-- Main Content -->
     <main>
-
-        <section class="card files-card">
-
-
-            <div class="files-header">
-
-                <div>
-
-                    <h1>
+      <section class="card files-card">
+        <div class="files-header">
+          <div>
+            <h1>
                         My Files
                     </h1>
 
-                    <p>
-                        View and manage your uploaded files.
+            <p>
+                        View files you have received and sent.
                     </p>
+          </div>
+        </div>
 
-                </div>
+        <!-- ============================= -->
+        <!-- RECEIVED FILES -->
+        <!-- ============================= -->
 
-            </div>
+        <div class="files-section">
+          <h2>
+                    Received Files
+                </h2>
 
+          <div id="receivedFiles">
+            <p class="loading-message">
+                        Loading received files...
+                    </p>
+          </div>
+        </div>
 
-            <!-- File List -->
-            <div id="fileList">
+        <!-- ============================= -->
+        <!-- SENT FILES -->
+        <!-- ============================= -->
 
-                <p class="loading-message">
-                    Loading files...
-                </p>
+        <div class="files-section">
+          <h2>
+                    Sent Files
+                </h2>
 
-            </div>
-
-        </section>
-
+          <div id="sentFiles">
+            <p class="loading-message">
+                        Loading sent files...
+                    </p>
+          </div>
+        </div>
+      </section>
     </main>
-
 
     <!-- Footer -->
     <footer>
-
-        <p>
+      <p>
             &copy; 2026 ShareAagan. All rights reserved.
         </p>
-
     </footer>
 
-
-    <!-- JavaScript -->
     <script>
+    const receivedFiles = document.getElementById("receivedFiles");
 
-        const fileList =
-            document.getElementById("fileList");
+    const sentFiles = document.getElementById("sentFiles");
 
+    // =========================================================
+    // CREATE FILE ITEM
+    // =========================================================
 
-        async function loadFiles() {
+    function createFileItem(file, type) {
+      const fileItem = document.createElement("div");
+
+      fileItem.className = "file-item";
+
+      // =============================
+      // File information
+      // =============================
+
+      const fileInfo = document.createElement("div");
+
+      fileInfo.className = "file-info";
+
+      // File icon
+      const fileIcon = document.createElement("div");
+
+      fileIcon.className = "file-icon";
+
+      fileIcon.textContent = "📄";
+
+      // Text information
+      const textInfo = document.createElement("div");
+
+      // File name
+      const fileName = document.createElement("h3");
+
+      fileName.textContent = file.filename;
+
+      // Date
+      const fileDate = document.createElement("p");
+
+      fileDate.className = "file-date";
+
+      const date = new Date(file.uploaded_at);
+
+      fileDate.textContent = `Sent: ${date.toLocaleString()}`;
+
+      // Sender / recipient information
+      const personInfo = document.createElement("p");
+
+      personInfo.className = "file-date";
+
+      if (type === "received") {
+        personInfo.textContent = `From: ${file.sender_username}`;
+      } else {
+        personInfo.textContent = `To: ${file.recipient_username}`;
+      }
+
+      textInfo.appendChild(
+        fileName,
+      );
+
+      textInfo.appendChild(
+        fileDate,
+      );
+
+      textInfo.appendChild(
+        personInfo,
+      );
+
+      fileInfo.appendChild(
+        fileIcon,
+      );
+
+      fileInfo.appendChild(
+        textInfo,
+      );
+
+      // =============================
+      // Buttons
+      // =============================
+
+      const fileActions = document.createElement("div");
+
+      fileActions.className = "file-actions";
+
+      // Download button
+      const downloadButton = document.createElement("button");
+
+      downloadButton.textContent = "Download";
+
+      downloadButton.className = "btn";
+
+      downloadButton.addEventListener(
+        "click",
+        () => {
+          window.location.href = `/download?id=${file.id}`;
+        },
+      );
+
+      fileActions.appendChild(
+        downloadButton,
+      );
+
+      // =============================
+      // Delete button
+      // =============================
+      // Only the sender can delete
+      // a file.
+
+      if (type === "sent") {
+        const deleteButton = document.createElement("button");
+
+        deleteButton.textContent = "Delete";
+
+        deleteButton.className = "btn delete-btn";
+
+        deleteButton.addEventListener(
+          "click",
+          async () => {
+            const confirmed = confirm(
+              `Are you sure you want to delete ${file.filename}?`,
+            );
+
+            if (!confirmed) {
+              return;
+            }
 
             try {
+              const deleteResponse = await fetch(
+                "/delete",
+                {
+                  method: "POST",
 
-                const response =
-                    await fetch("/files");
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
 
+                  body: JSON.stringify({
+                    fileId: file.id,
+                  }),
+                },
+              );
 
-                // User is not logged in
-                if (response.status === 401) {
+              const message = await deleteResponse.text();
 
-                    fileList.innerHTML = `
+              alert(message);
 
-                        <div class="login-message">
+              if (deleteResponse.ok) {
+                loadFiles();
+              }
+            } catch (error) {
+              console.error(error);
 
-                            <h2>
-                                Login Required
-                            </h2>
+              alert(
+                "Could not delete the file.",
+              );
+            }
+          },
+        );
 
-                            <p>
-                                Please log in to view your files.
-                            </p>
+        fileActions.appendChild(
+          deleteButton,
+        );
+      }
 
-                            <a href="/login.html" class="btn">
-                                Login
-                            </a>
+      // Add everything together
+      fileItem.appendChild(
+        fileInfo,
+      );
 
-                        </div>
+      fileItem.appendChild(
+        fileActions,
+      );
 
-                    `;
+      return fileItem;
+    }
 
-                    return;
-                }
+    // =========================================================
+    // LOAD FILES
+    // =========================================================
 
+    async function loadFiles() {
+      try {
+        // ==========================================
+        // LOAD RECEIVED FILES
+        // ==========================================
 
-                if (!response.ok) {
+        const receivedResponse = await fetch("/received-files");
 
-                    fileList.textContent =
-                        "Could not load files.";
+        if (receivedResponse.status === 401) {
+          receivedFiles.innerHTML = `
 
-                    return;
-                }
+                    <div class="login-message">
 
+                        <h2>
+                            Login Required
+                        </h2>
 
-                const files =
-                    await response.json();
+                        <p>
+                            Please log in to view your files.
+                        </p>
 
+                        <a href="/login.html" class="btn">
+                            Login
+                        </a>
 
-                fileList.innerHTML = "";
+                    </div>
 
+                `;
 
-                // No files
-                if (files.length === 0) {
+          sentFiles.innerHTML = "";
 
-                    fileList.innerHTML = `
+          return;
+        }
+
+        if (!receivedResponse.ok) {
+          receivedFiles.textContent = "Could not load received files.";
+        } else {
+          const files = await receivedResponse.json();
+
+          receivedFiles.innerHTML = "";
+
+          if (files.length === 0) {
+            receivedFiles.innerHTML = `
 
                         <div class="empty-files">
 
-                            <h2>
-                                No Files Yet
-                            </h2>
-
                             <p>
-                                You haven't uploaded any files yet.
+                                You haven't received any files yet.
                             </p>
-
-                            <a href="/upload.html" class="btn">
-                                Upload Your First File
-                            </a>
 
                         </div>
 
                     `;
-
-                    return;
-                }
-
-
-                // Display files
-                files.forEach((file) => {
-
-                    const fileItem =
-                        document.createElement("div");
-
-                    fileItem.className =
-                        "file-item";
-
-
-                    // File information
-                    const fileInfo =
-                        document.createElement("div");
-
-                    fileInfo.className =
-                        "file-info";
-
-
-                    // File icon
-                    const fileIcon =
-                        document.createElement("div");
-
-                    fileIcon.className =
-                        "file-icon";
-
-                    fileIcon.textContent =
-                        "📄";
-
-
-                    // File name
-                    const fileName =
-                        document.createElement("h3");
-
-                    fileName.textContent =
-                        file.filename;
-
-
-                    // Upload date
-                    const uploadDate =
-                        document.createElement("p");
-
-                    uploadDate.className =
-                        "file-date";
-
-
-                    const date =
-                        new Date(
-                            file.uploaded_at
-                        );
-
-
-                    uploadDate.textContent =
-                        `Uploaded: ${date.toLocaleString()}`;
-
-
-                    // Put information together
-                    fileInfo.appendChild(
-                        fileIcon
-                    );
-
-
-                    const textInfo =
-                        document.createElement("div");
-
-                    textInfo.appendChild(
-                        fileName
-                    );
-
-                    textInfo.appendChild(
-                        uploadDate
-                    );
-
-                    fileInfo.appendChild(
-                        textInfo
-                    );
-
-
-                    // Buttons container
-                    const fileActions =
-                        document.createElement("div");
-
-                    fileActions.className =
-                        "file-actions";
-
-
-                    // Download button
-                    const downloadButton =
-                        document.createElement("button");
-
-                    downloadButton.textContent =
-                        "Download";
-
-                    downloadButton.className =
-                        "btn";
-
-
-                    downloadButton.addEventListener(
-                        "click",
-                        () => {
-
-                            window.location.href =
-                                `/download?id=${file.id}`;
-
-                        }
-                    );
-
-
-                    // Delete button
-                    const deleteButton =
-                        document.createElement("button");
-
-                    deleteButton.textContent =
-                        "Delete";
-
-                    deleteButton.className =
-                        "btn delete-btn";
-
-
-                    deleteButton.addEventListener(
-                        "click",
-                        async () => {
-
-                            const confirmed =
-                                confirm(
-                                    `Are you sure you want to delete ${file.filename}?`
-                                );
-
-
-                            if (!confirmed) {
-
-                                return;
-
-                            }
-
-
-                            const deleteResponse =
-                                await fetch(
-                                    "/delete",
-                                    {
-                                        method: "POST",
-
-                                        headers: {
-                                            "Content-Type":
-                                                "application/json"
-                                        },
-
-                                        body: JSON.stringify({
-                                            fileId: file.id
-                                        })
-                                    }
-                                );
-
-
-                            const message =
-                                await deleteResponse.text();
-
-
-                            alert(message);
-
-
-                            if (deleteResponse.ok) {
-
-                                loadFiles();
-
-                            }
-
-                        }
-                    );
-
-
-                    // Add buttons
-                    fileActions.appendChild(
-                        downloadButton
-                    );
-
-                    fileActions.appendChild(
-                        deleteButton
-                    );
-
-
-                    // Add actions to file item
-                    fileItem.appendChild(
-                        fileInfo
-                    );
-
-                    fileItem.appendChild(
-                        fileActions
-                    );
-
-
-                    // Add file to list
-                    fileList.appendChild(
-                        fileItem
-                    );
-
-                });
-
-            }
-
-            catch (error) {
-
-                console.error(error);
-
-                fileList.textContent =
-                    "Could not connect to the server.";
-
-            }
-
+          } else {
+            files.forEach(
+              (file) => {
+                receivedFiles.appendChild(
+                  createFileItem(
+                    file,
+                    "received",
+                  ),
+                );
+              },
+            );
+          }
         }
 
+        // ==========================================
+        // LOAD SENT FILES
+        // ==========================================
 
-        // Load files when page opens
-        loadFiles();
+        const sentResponse = await fetch("/sent-files");
 
+        if (!sentResponse.ok) {
+          sentFiles.textContent = "Could not load sent files.";
+
+          return;
+        }
+
+        const sent = await sentResponse.json();
+
+        sentFiles.innerHTML = "";
+
+        if (sent.length === 0) {
+          sentFiles.innerHTML = `
+
+                    <div class="empty-files">
+
+                        <p>
+                            You haven't sent any files yet.
+                        </p>
+
+                        <a href="/send.html" class="btn">
+                            Send a File
+                        </a>
+
+                    </div>
+
+                `;
+        } else {
+          sent.forEach(
+            (file) => {
+              sentFiles.appendChild(
+                createFileItem(
+                  file,
+                  "sent",
+                ),
+              );
+            },
+          );
+        }
+      } catch (error) {
+        console.error(error);
+
+        receivedFiles.textContent = "Could not connect to the server.";
+
+        sentFiles.textContent = "Could not connect to the server.";
+      }
+    }
+
+    // Load files when page opens
+    loadFiles();
     </script>
-
 
     <!-- Authentication JavaScript -->
     <script src="/auth.js"></script>
-
-</body>
-
+  </body>
 </html>

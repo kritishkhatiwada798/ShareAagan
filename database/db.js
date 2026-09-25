@@ -37,6 +37,21 @@ db.exec(`
   idx_users_email ON users(email)
 `);
 
+// =========================================================
+// NOTIFICATIONS TABLE
+// =========================================================
+db.exec(`
+  CREATE TABLE IF NOT EXISTS notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    message TEXT NOT NULL,
+    file_id INTEGER,
+    is_read INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (file_id) REFERENCES files(id)
+  )
+`);
 
 // Create the files table if it doesn't exist
 db.exec(`
@@ -211,7 +226,7 @@ export function addFile(filename, userId) {
 // New function for sending a file to another user
 export function sendFile(filename, senderId, recipientId) {
 
-  db.prepare(`
+  const result = db.prepare(`
     INSERT INTO files (
       filename,
       uploaded_at,
@@ -225,6 +240,8 @@ export function sendFile(filename, senderId, recipientId) {
     senderId,
     recipientId
   );
+
+  return result.lastInsertRowId;
 
 }
 
@@ -305,6 +322,82 @@ export function deleteFile(fileId, userId) {
   );
 
   return result.changes;
+
+}
+
+// =========================================================
+// NOTIFICATIONS
+// =========================================================
+
+// Create a notification
+export function createNotification(
+  userId,
+  message,
+  fileId = null
+) {
+
+  db.prepare(`
+    INSERT INTO notifications (
+      user_id,
+      message,
+      file_id,
+      is_read,
+      created_at
+    )
+    VALUES (?, ?, ?, 0, ?)
+  `).run(
+    userId,
+    message,
+    fileId,
+    new Date().toISOString()
+  );
+
+}
+
+
+// Get notifications for a user
+export function getNotifications(userId) {
+
+  return db.prepare(`
+    SELECT *
+    FROM notifications
+    WHERE user_id = ?
+    ORDER BY id DESC
+  `).all(userId);
+
+}
+
+
+// Get unread notification count
+export function getUnreadNotificationCount(userId) {
+
+  const result = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM notifications
+    WHERE user_id = ?
+    AND is_read = 0
+  `).get(userId);
+
+  return result.count;
+
+}
+
+
+// Mark a notification as read
+export function markNotificationAsRead(
+  notificationId,
+  userId
+) {
+
+  return db.prepare(`
+    UPDATE notifications
+    SET is_read = 1
+    WHERE id = ?
+    AND user_id = ?
+  `).run(
+    notificationId,
+    userId
+  );
 
 }
 

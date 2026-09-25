@@ -230,7 +230,7 @@ async function updateAuthButton() {
 
 
 // =============================================================
-// NOTIFICATION BUTTON
+// NOTIFICATIONS
 // =============================================================
 
 function setupNotifications() {
@@ -241,38 +241,212 @@ function setupNotifications() {
     const notificationMenu =
         document.getElementById("notificationMenu");
 
-
     if (!notificationButton || !notificationMenu) {
         return;
     }
 
-
-    notificationButton.addEventListener("click", (event) => {
+    // Open / close notification panel
+    notificationButton.addEventListener("click", async (event) => {
 
         event.stopPropagation();
 
         notificationMenu.classList.toggle("show");
 
+        // Load notifications when panel is opened
+        if (notificationMenu.classList.contains("show")) {
+            await loadNotifications();
+        }
     });
 
-
-    // Close notification menu when clicking elsewhere
+    // Close when clicking outside
     document.addEventListener("click", (event) => {
 
         if (
             !notificationMenu.contains(event.target) &&
             !notificationButton.contains(event.target)
         ) {
-
             notificationMenu.classList.remove("show");
-
         }
 
     });
-
 }
 
+//function checkForNewNotifications() {
+async function loadNotifications() {
+
+    const notificationMenu =
+        document.getElementById("notificationMenu");
+
+    if (!notificationMenu) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch("/notifications");
+
+        if (!response.ok) {
+            console.log("Could not load notifications.");
+            return;
+        }
+
+        const notifications = await response.json();
+
+        console.log("Notifications:", notifications);
+
+        const unreadNotifications = notifications.filter(
+            notification => notification.is_read === 0
+        );
+
+        // Create notification content
+        let content = "";
+
+        if (notifications.length === 0) {
+
+            content = `
+                <div class="no-notifications">
+                    <span>🔔</span>
+                    <p>No new notifications</p>
+                </div>
+            `;
+
+        } else {
+
+            content = notifications.map(notification => {
+
+                return `
+                    <div class="notification-item ${notification.is_read === 0
+                        ? "unread"
+                        : ""
+                    }"
+                    data-id="${notification.id}"
+                    data-file-id="${notification.file_id || ""}">
+
+                        <span>🔔</span>
+
+                        <div>
+                            <p>${notification.message}</p>
+                            <small>${new Date(
+                        notification.created_at
+                    ).toLocaleString()}</small>
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+        }
+
+        notificationMenu.innerHTML = `
+            <div class="notification-header">
+                <strong>Notifications</strong>
+            </div>
+
+            <div class="notification-divider"></div>
+
+            <div class="notification-content">
+                ${content}
+            </div>
+        `;
+
+        // Add click events
+        const items =
+            notificationMenu.querySelectorAll(".notification-item");
+
+        items.forEach(item => {
+
+            item.addEventListener("click", async () => {
+
+                const notificationId =
+                    item.dataset.id;
+
+                const fileId =
+                    item.dataset.fileId;
+
+                await fetch("/notifications/read", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        notificationId
+                    })
+                });
+
+                item.classList.remove("unread");
+
+                // If notification belongs to a file,
+                // open the files page
+                if (fileId) {
+                    window.location.href = "/files.html";
+                }
+
+            });
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error loading notifications:",
+            error
+        );
+
+    }
+}
+
+async function checkForNewNotifications() {
+
+    try {
+
+        const response =
+            await fetch("/notifications");
+
+        if (!response.ok) {
+            return;
+        }
+
+        const notifications =
+            await response.json();
+
+        const hasUnread =
+            notifications.some(
+                notification =>
+                    notification.is_read === 0
+            );
+
+        console.log(
+            "Unread notification:",
+            hasUnread
+        );
+
+        if (hasUnread) {
+
+            const notificationMenu =
+                document.getElementById("notificationMenu");
+
+            if (notificationMenu) {
+
+                notificationMenu.classList.add("show");
+
+                // Load the actual notification content
+                await loadNotifications();
+            }
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not check notifications:",
+            error
+        );
+
+    }
+}
 
 updateAuthButton();
-
 setupNotifications();
+
+setTimeout(() => {
+    checkForNewNotifications();
+}, 500)
