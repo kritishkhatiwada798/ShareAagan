@@ -5,14 +5,12 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>My Profile - ShareAagan</title>
 
-    <link rel="stylesheet" href="/style.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="../public/css/style.css">
 
 </head>
 
@@ -41,66 +39,6 @@
                 <a href="/index.html">
                     Home
                 </a>
-
-
-                <!-- Notifications -->
-
-                <div class="notification-container">
-
-                    <button
-                        type="button"
-                        class="notification-button"
-                        id="notificationButton"
-                        aria-label="Notifications"
-                    >
-                        🔔
-                    </button>
-
-
-                    <div
-                        class="notification-menu"
-                        id="notificationMenu"
-                    >
-
-                        <div class="notification-header">
-                            <strong>Notifications</strong>
-                        </div>
-
-
-                        <div class="notification-divider"></div>
-
-
-                        <div class="no-notifications">
-
-                            <span>🔔</span>
-
-                            <p>
-                                No new notifications
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Profile -->
-
-                <div
-                    class="profile-container"
-                    id="profileContainer"
-                >
-
-                    <a
-                        href="/login.html"
-                        id="authLink"
-                    >
-                        Login
-                    </a>
-
-                </div>
-
 
             </div>
 
@@ -140,10 +78,7 @@
 
             <div class="profile-avatar-section">
 
-                <div
-                    class="profile-avatar profile-avatar-xl"
-                    id="profileAvatar"
-                >
+                <div class="profile-avatar profile-avatar-xl" id="profileAvatar">
                     ?
                 </div>
 
@@ -215,19 +150,12 @@
 
             <div class="profile-actions">
 
-                <button
-                    type="button"
-                    id="editProfileBtn"
-                    class="profile-edit-btn"
-                >
+                <button type="button" id="editProfileBtn" class="profile-edit-btn">
                     Edit Profile
                 </button>
 
 
-                <a
-                    href="/files.html"
-                    class="profile-files-btn"
-                >
+                <a href="/files.html" class="profile-files-btn">
                     View My Files
                 </a>
 
@@ -239,11 +167,7 @@
                  EDIT PROFILE FORM
                  ================================================= -->
 
-            <div
-                id="editProfileForm"
-                class="edit-profile-form"
-                style="display: none;"
-            >
+            <div id="editProfileForm" class="edit-profile-form" style="display: none;">
 
 
                 <div class="profile-divider"></div>
@@ -270,12 +194,7 @@
                         Username
                     </label>
 
-                    <input
-                        type="text"
-                        id="editUsername"
-                        placeholder="Enter your username"
-                        autocomplete="username"
-                    >
+                    <input type="text" id="editUsername" placeholder="Enter your username" autocomplete="username">
 
                 </div>
 
@@ -289,12 +208,7 @@
                         Email Address
                     </label>
 
-                    <input
-                        type="email"
-                        id="editEmail"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                    >
+                    <input type="email" id="editEmail" placeholder="Enter your email" autocomplete="email">
 
                 </div>
 
@@ -315,12 +229,8 @@
                     </small>
 
 
-                    <input
-                        type="password"
-                        id="editPassword"
-                        placeholder="Enter a new password"
-                        autocomplete="new-password"
-                    >
+                    <input type="password" id="editPassword" placeholder="Enter a new password"
+                        autocomplete="new-password">
 
                 </div>
 
@@ -330,30 +240,19 @@
 
                 <div class="edit-profile-actions">
 
-                    <button
-                        type="button"
-                        id="cancelEditBtn"
-                        class="profile-cancel-btn"
-                    >
+                    <button type="button" id="cancelEditBtn" class="profile-cancel-btn">
                         Cancel
                     </button>
 
 
-                    <button
-                        type="button"
-                        id="saveProfileBtn"
-                        class="profile-save-btn"
-                    >
+                    <button type="button" id="saveProfileBtn" class="profile-save-btn">
                         Save Changes
                     </button>
 
                 </div>
 
 
-                <p
-                    id="editProfileMessage"
-                    class="edit-profile-message"
-                ></p>
+                <p id="editProfileMessage" class="edit-profile-message"></p>
 
 
             </div>
@@ -382,9 +281,9 @@
 
     <!-- JavaScript -->
 
-    <script src="/auth.js"></script>
+    <script src="../public/js/auth.js"></script>
 
-    <script src="/profile.js"></script>
+    <script src="../public/js/profile.js"></script>
 
 
 </body>

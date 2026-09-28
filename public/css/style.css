@@ -16,7 +16,10 @@ body {
 
     font-family: Arial, sans-serif;
 
-    background-color: #f4f7fb;
+    background: linear-gradient(135deg,
+            #dbeafe,
+            #ede9fe,
+            #f5f3ff);
 
     color: #1e293b;
 }
@@ -166,7 +169,7 @@ header {
 
     right: 0;
 
-    width: 300px;
+    width: 400px;
 
     background-color: white;
 
@@ -382,7 +385,7 @@ header {
     gap: 12px;
 }
 
-.profile-menu-header > div:last-child {
+.profile-menu-header>div:last-child {
     min-width: 0;
 
     display: flex;
@@ -522,7 +525,7 @@ main {
     border-radius: 14px;
 
     box-shadow:
-        0 5px 20px rgba(0, 0, 0, 0.06);
+        0 8px 25px rgba(30, 41, 59, 0.10);
 }
 
 .hero h1 {
@@ -606,7 +609,7 @@ main {
     border-radius: 14px;
 
     box-shadow:
-        0 5px 20px rgba(0, 0, 0, 0.06);
+        0 8px 25px rgba(30, 41, 59, 0.10);
 }
 
 
@@ -856,7 +859,7 @@ main {
     border-radius: 14px;
 
     box-shadow:
-        0 5px 20px rgba(0, 0, 0, 0.06);
+        0 8px 25px rgba(30, 41, 59, 0.10);
 }
 
 

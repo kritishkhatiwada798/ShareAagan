@@ -88,11 +88,6 @@ async function updateAuthButton() {
                     </a>
 
 
-                    <a href="#">
-                        ⚙️ Settings
-                    </a>
-
-
                     <div class="profile-menu-divider"></div>
 
 
@@ -278,7 +273,7 @@ async function loadNotifications() {
         document.getElementById("notificationMenu");
 
     if (!notificationMenu) {
-        return;
+        return [];
     }
 
     try {
@@ -287,7 +282,7 @@ async function loadNotifications() {
 
         if (!response.ok) {
             console.log("Could not load notifications.");
-            return;
+            return [];
         }
 
         const notifications = await response.json();
@@ -295,13 +290,13 @@ async function loadNotifications() {
         console.log("Notifications:", notifications);
 
         const unreadNotifications = notifications.filter(
-            notification => notification.is_read === 0
+            notification => Number(notification.is_read) === 0
         );
 
         // Create notification content
         let content = "";
 
-        if (notifications.length === 0) {
+        if (unreadNotifications.length === 0) {
 
             content = `
                 <div class="no-notifications">
@@ -312,7 +307,7 @@ async function loadNotifications() {
 
         } else {
 
-            content = notifications.map(notification => {
+            content = unreadNotifications.map(notification => {
 
                 return `
                     <div class="notification-item ${notification.is_read === 0
@@ -363,7 +358,7 @@ async function loadNotifications() {
                 const fileId =
                     item.dataset.fileId;
 
-                await fetch("/notifications/read", {
+                const response = await fetch("/notifications/read", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -373,7 +368,23 @@ async function loadNotifications() {
                     })
                 });
 
-                item.classList.remove("unread");
+                if (!response.ok) {
+                    return;
+                }
+
+                item.remove();
+
+                const notificationContent =
+                    notificationMenu.querySelector(".notification-content");
+
+                if (!notificationContent.querySelector(".notification-item")) {
+                    notificationContent.innerHTML = `
+                        <div class="no-notifications">
+                            <span>🔔</span>
+                            <p>No new notifications</p>
+                        </div>
+                    `;
+                }
 
                 // If notification belongs to a file,
                 // open the files page
@@ -385,6 +396,8 @@ async function loadNotifications() {
 
         });
 
+        return unreadNotifications;
+
     } catch (error) {
 
         console.error(
@@ -392,55 +405,31 @@ async function loadNotifications() {
             error
         );
 
+        return [];
+
     }
 }
 
 async function checkForNewNotifications() {
 
-    try {
+    const notificationMenu =
+        document.getElementById("notificationMenu");
 
-        const response =
-            await fetch("/notifications");
+    const sessionKey = "shareAaganNotificationsAutoOpened";
 
-        if (!response.ok) {
-            return;
-        }
+    if (
+        !notificationMenu ||
+        sessionStorage.getItem(sessionKey)
+    ) {
+        return;
+    }
 
-        const notifications =
-            await response.json();
+    const unreadNotifications =
+        await loadNotifications();
 
-        const hasUnread =
-            notifications.some(
-                notification =>
-                    notification.is_read === 0
-            );
-
-        console.log(
-            "Unread notification:",
-            hasUnread
-        );
-
-        if (hasUnread) {
-
-            const notificationMenu =
-                document.getElementById("notificationMenu");
-
-            if (notificationMenu) {
-
-                notificationMenu.classList.add("show");
-
-                // Load the actual notification content
-                await loadNotifications();
-            }
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Could not check notifications:",
-            error
-        );
-
+    if (unreadNotifications.length > 0) {
+        sessionStorage.setItem(sessionKey, "true");
+        notificationMenu.classList.add("show");
     }
 }
 

@@ -1,0 +1,303 @@
+
+    const receivedFiles = document.getElementById("receivedFiles");
+
+    const sentFiles = document.getElementById("sentFiles");
+
+    // =========================================================
+    // CREATE FILE ITEM
+    // =========================================================
+
+    function createFileItem(file, type) {
+      const fileItem = document.createElement("div");
+
+    fileItem.className = "file-item";
+
+    // =============================
+    // File information
+    // =============================
+
+    const fileInfo = document.createElement("div");
+
+    fileInfo.className = "file-info";
+
+    // File icon
+    const fileIcon = document.createElement("div");
+
+    fileIcon.className = "file-icon";
+
+    fileIcon.textContent = "📄";
+
+    // Text information
+    const textInfo = document.createElement("div");
+
+    // File name
+    const fileName = document.createElement("h3");
+
+    fileName.textContent = file.filename;
+
+    // Date
+    const fileDate = document.createElement("p");
+
+    fileDate.className = "file-date";
+
+    const date = new Date(file.uploaded_at);
+
+    fileDate.textContent = `Sent: ${date.toLocaleString()}`;
+
+    // Sender / recipient information
+    const personInfo = document.createElement("p");
+
+    personInfo.className = "file-date";
+
+    if (type === "received") {
+        personInfo.textContent = `From: ${file.sender_username}`;
+      } else {
+        personInfo.textContent = `To: ${file.recipient_username}`;
+      }
+
+    textInfo.appendChild(
+    fileName,
+    );
+
+    textInfo.appendChild(
+    fileDate,
+    );
+
+    textInfo.appendChild(
+    personInfo,
+    );
+
+    fileInfo.appendChild(
+    fileIcon,
+    );
+
+    fileInfo.appendChild(
+    textInfo,
+    );
+
+    // =============================
+    // Buttons
+    // =============================
+
+    const fileActions = document.createElement("div");
+
+    fileActions.className = "file-actions";
+
+    // Download button
+    const downloadButton = document.createElement("button");
+
+    downloadButton.textContent = "Download";
+
+    downloadButton.className = "btn";
+
+    downloadButton.addEventListener(
+    "click",
+        () => {
+        window.location.href = `/download?id=${file.id}`;
+        },
+    );
+
+    fileActions.appendChild(
+    downloadButton,
+    );
+
+    // =============================
+    // Delete button
+    // =============================
+    // Only the sender can delete
+    // a file.
+
+    if (type === "sent") {
+        const deleteButton = document.createElement("button");
+
+    deleteButton.textContent = "Delete";
+
+    deleteButton.className = "btn delete-btn";
+
+    deleteButton.addEventListener(
+    "click",
+          async () => {
+            const confirmed = confirm(
+    `Are you sure you want to delete ${file.filename}?`,
+    );
+
+    if (!confirmed) {
+              return;
+            }
+
+    try {
+              const deleteResponse = await fetch(
+    "/delete",
+    {
+        method: "POST",
+
+    headers: {
+        "Content-Type": "application/json",
+                  },
+
+    body: JSON.stringify({
+        fileId: file.id,
+                  }),
+                },
+    );
+
+    const message = await deleteResponse.text();
+
+    alert(message);
+
+    if (deleteResponse.ok) {
+        loadFiles();
+              }
+            } catch (error) {
+        console.error(error);
+
+    alert(
+    "Could not delete the file.",
+    );
+            }
+          },
+    );
+
+    fileActions.appendChild(
+    deleteButton,
+    );
+      }
+
+    // Add everything together
+    fileItem.appendChild(
+    fileInfo,
+    );
+
+    fileItem.appendChild(
+    fileActions,
+    );
+
+    return fileItem;
+    }
+
+    // =========================================================
+    // LOAD FILES
+    // =========================================================
+
+    async function loadFiles() {
+      try {
+        // ==========================================
+        // LOAD RECEIVED FILES
+        // ==========================================
+
+        const receivedResponse = await fetch("/received-files");
+
+    if (receivedResponse.status === 401) {
+        receivedFiles.innerHTML = `
+
+                    <div class="login-message">
+
+                        <h2>
+                            Login Required
+                        </h2>
+
+                        <p>
+                            Please log in to view your files.
+                        </p>
+
+                        <a href="/login.html" class="btn">
+                            Login
+                        </a>
+
+                    </div>
+
+                `;
+
+    sentFiles.innerHTML = "";
+
+    return;
+        }
+
+    if (!receivedResponse.ok) {
+        receivedFiles.textContent = "Could not load received files.";
+        } else {
+          const files = await receivedResponse.json();
+
+    receivedFiles.innerHTML = "";
+
+    if (files.length === 0) {
+        receivedFiles.innerHTML = `
+
+                        <div class="empty-files">
+
+                            <p>
+                                You haven't received any files yet.
+                            </p>
+
+                        </div>
+
+                    `;
+          } else {
+        files.forEach(
+            (file) => {
+                receivedFiles.appendChild(
+                    createFileItem(
+                        file,
+                        "received",
+                    ),
+                );
+            },
+        );
+          }
+        }
+
+    // ==========================================
+    // LOAD SENT FILES
+    // ==========================================
+
+    const sentResponse = await fetch("/sent-files");
+
+    if (!sentResponse.ok) {
+        sentFiles.textContent = "Could not load sent files.";
+
+    return;
+        }
+
+    const sent = await sentResponse.json();
+
+    sentFiles.innerHTML = "";
+
+    if (sent.length === 0) {
+        sentFiles.innerHTML = `
+
+                    <div class="empty-files">
+
+                        <p>
+                            You haven't sent any files yet.
+                        </p>
+
+                        <a href="/send.html" class="btn">
+                            Send a File
+                        </a>
+
+                    </div>
+
+                `;
+        } else {
+        sent.forEach(
+            (file) => {
+                sentFiles.appendChild(
+                    createFileItem(
+                        file,
+                        "sent",
+                    ),
+                );
+            },
+        );
+        }
+      } catch (error) {
+        console.error(error);
+
+    receivedFiles.textContent = "Could not connect to the server.";
+
+    sentFiles.textContent = "Could not connect to the server.";
+      }
+    }
+
+    // Load files when page opens
+    loadFiles();

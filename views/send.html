@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Send File - ShareAagan</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../public/css/style.css">
+
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="navbar">
+
+        <div class="logo">
+            ShareAagan
+        </div>
+
+        <nav class="nav-links">
+
+            <a href="/index.html">
+                Home
+            </a>
+
+            <div class="profile-container" id="profileContainer">
+
+                <a href="/login.html" id="authLink">
+                    Login
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main>
+
+        <section class="card">
+
+            <h1>
+                Send a File
+            </h1>
+
+            <p>
+                Choose a recipient and a file to send.
+            </p>
+
+
+            <form id="sendFileForm">
+
+
+                <!-- Recipient -->
+                <div class="form-group">
+
+                    <label for="recipient">
+                        Send To
+                    </label>
+
+                    <select id="recipient" name="recipient" required>
+
+                        <option value="">
+                            Select a recipient
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- File -->
+                <div class="form-group">
+
+                    <label for="file">
+                        Select File
+                    </label>
+
+                    <input type="file" id="file" name="file" required>
+
+                </div>
+
+
+                <button type="submit" class="btn">
+
+                    Send File
+
+                </button>
+
+            </form>
+
+
+            <p id="message"></p>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <p>
+            &copy; 2026 ShareAagan. All rights reserved.
+        </p>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="../public/js/send.js"></script>
+
+    <script src="../public/js/auth.js"></script>
+
+
+</body>
+
+</html>

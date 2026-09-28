@@ -38,28 +38,52 @@ function getContentType(pathname) {
 
 
 // =========================================================
-// SERVE STATIC FILES
+// SERVE VIEWS AND STATIC FILES
 // =========================================================
 
 async function serveStaticFile(pathname) {
 
-    let filePath = "." + pathname;
+    let filePath;
 
-    // Homepage
+
+    // =====================================================
+    // SERVE HTML FROM THE VIEWS FOLDER
+    // =====================================================
+
     if (pathname === "/") {
-        filePath = "./index.html";
+
+        filePath = "./views/index.html";
+
+    } else if (pathname.endsWith(".html")) {
+
+        filePath = "./views" + pathname;
+
+    } else {
+
+        // CSS, JavaScript, images, etc.
+        // remain outside the views folder for now
+        filePath = "." + pathname;
+
     }
+
 
     try {
 
-        const file = await Deno.readFile(filePath);
+        const file =
+            await Deno.readFile(filePath);
 
-        return new Response(file, {
-            status: 200,
-            headers: {
-                "Content-Type": getContentType(filePath)
+
+        return new Response(
+            file,
+            {
+                status: 200,
+
+                headers: {
+                    "Content-Type":
+                        getContentType(filePath)
+                }
             }
-        });
+        );
 
     } catch {
 
@@ -67,14 +91,16 @@ async function serveStaticFile(pathname) {
             "404 - File Not Found",
             {
                 status: 404,
+
                 headers: {
-                    "Content-Type": "text/plain"
+                    "Content-Type":
+                        "text/plain"
                 }
             }
         );
+
     }
 }
-
 
 // =========================================================
 // MAIN SERVER
